@@ -53,10 +53,15 @@ class FavoriteManager(models.Manager):
 
     def favorite_for_user_and_content_object(self, user, content_object):
         """
-        if Favorite exists for input user and type and pk of the input
-        content_object, return it.  else return None.
-        impl note: can only be 0 or 1, per the class's unique_together.
+        Returns the Favorite object if it exists for the given user, type, and the primary key
+        of the input content_object. If no Favorite exists, returns None.
+
+        .. note::
+            Due to the class's `unique_together` constraint, there can be only 0 or 1 Favorite
+            object for the given combination of user, type, and content_object.
+
         """
+
         content_type = ContentType.objects.get_for_model(type(content_object))
         result = self.filter(user=user, content_type=content_type, object_id=content_object.pk)
 
@@ -66,7 +71,10 @@ class FavoriteManager(models.Manager):
             return None
 
     def bulk_favorite_objects(self, user):
-        "get the actual favorite objects for a user as a dict by content_type"
+        """
+        Get the actual favorite objects for a user as a dict by content_type
+        """
+
         favs = {}
         for m in (Document, Map, Dataset, get_user_model()):
             ct = ContentType.objects.get_for_model(m)

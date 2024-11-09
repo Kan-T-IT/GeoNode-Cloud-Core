@@ -55,6 +55,7 @@ class GeoAppsApiTests(APITestCase):
         """
         Ensure we can access the GeoApps list.
         """
+
         url = reverse("geoapps-list")
         # Anonymous
         response = self.client.get(url, format="json")
@@ -91,6 +92,7 @@ class GeoAppsApiTests(APITestCase):
         """
         Ensure we can create/update GeoApps.
         """
+
         # Bobby
         self.assertTrue(self.client.login(username="bobby", password="bob"))
         # Create

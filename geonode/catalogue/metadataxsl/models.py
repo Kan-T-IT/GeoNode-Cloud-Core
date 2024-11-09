@@ -34,12 +34,18 @@ settings.DOWNLOAD_FORMATS_METADATA.append(ISO_XSL_NAME)
 
 
 def xsl_post_save(instance, sender, **kwargs):
-    """Add a link to the enriched ISO metadata"""
+    """
+    Add a link to the enriched ISO metadata
+    """
+
     add_xsl_link(instance.resourcebase_ptr)
 
 
 def add_xsl_link(resourcebase):
-    """Add a link to the enriched ISO metadata"""
+    """
+    Add a link to the enriched ISO metadata
+    """
+
     try:
         urlpath = reverse("prefix_xsl_line", args=[resourcebase.id])
         site_url = settings.SITEURL.rstrip("/") if settings.SITEURL.startswith("http") else settings.SITEURL

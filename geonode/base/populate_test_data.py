@@ -58,7 +58,10 @@ dfile = [f"{settings.MEDIA_ROOT}/img.gif"]
 
 
 def all_public():
-    """ensure all layers, maps and documents are publicly available"""
+    """
+    Ensure all layers, maps and documents are publicly available
+    """
+
     for lyr in Dataset.objects.all():
         lyr.set_default_permissions()
         lyr.clear_dirty_state()

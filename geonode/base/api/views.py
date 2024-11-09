@@ -137,6 +137,7 @@ class UserViewSet(DynamicModelViewSet):
         """
         Filters and sorts users.
         """
+
         if self.request and self.request.user:
             queryset = get_available_users(self.request.user)
         else:
@@ -202,6 +203,7 @@ class GroupViewSet(DynamicModelViewSet):
         """
         Filters the public groups and private ones the current user is member of.
         """
+
         metadata_author_groups = get_user_visible_groups(self.request.user, include_public_invite=True)
         if not isinstance(metadata_author_groups, list):
             metadata_author_groups = list(metadata_author_groups.all())
@@ -331,6 +333,7 @@ class OwnerViewSet(WithDynamicViewSetMixin, ListModelMixin, RetrieveModelMixin, 
         """
         Filter users with at least one resource
         """
+
         queryset = get_user_model().objects.exclude(pk=-1)
         filter_options = {}
         if self.request.query_params:
@@ -584,60 +587,82 @@ class ResourceBaseViewSet(DynamicModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def resource_service_permissions(self, request, pk, *args, **kwargs):
+
         """Instructs the Async dispatcher to execute a 'DELETE' or 'UPDATE' on the permissions of a valid 'uuid'
 
-        - GET input_params: {
-            id: "<str: ID>"
-        }
+        .. code-block:: yaml
 
-        - DELETE input_params: {
-            id: "<str: ID>"
-        }
-
-        - PUT input_params: {
-            id: "<str: ID>"
-            owner: str = None
-            permissions: dict = {}
-            created: bool = False
-        }
-
-        - output_params: {
-            output: {
-                uuid: "<str: UUID>"
+            - GET input_params: {
+                id: "<str: ID>"
             }
-        }
 
-        - output: {
-                "status": "ready",
-                "execution_id": "<str: execution ID>",
-                "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
+            - DELETE input_params: {
+                id: "<str: ID>"
             }
+
+            - PUT input_params: {
+                id: "<str: ID>"
+                owner: str = None
+                permissions: dict = {}
+                created: bool = False
+            }
+
+            - output_params: {
+                output: {
+                    uuid: "<str: UUID>"
+                }
+            }
+
+        .. code-block:: yaml
+
+            - output: {
+                    "status": "ready",
+                    "execution_id": "<str: execution ID>",
+                    "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
+                }
 
         Sample Requests:
+
         - Removes all the permissions (except owner and admin ones) from a Resource:
-        curl -v -X DELETE -u admin:admin -H "Content-Type: application/json" http://localhost:8000/api/v2/resources/<id>/permissions
+
+            .. code-block:: bash
+
+                curl -v -X DELETE -u admin:admin -H "Content-Type: application/json" http://localhost:8000/api/v2/resources/<id>/permissions
 
         - Changes the owner of a Resource:
-            curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \
-                --header 'Content-Type: application/json' \
-                --data-raw '{"groups": [],"organizations": [],"users": [{"id": 1001,"permissions": "owner"}]}'
+
+            .. code-block:: bash
+
+                curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \\
+                    --header 'Content-Type: application/json' \\
+                    --data-raw '{"groups": [],"organizations": [],"users": [{"id": 1001,"permissions": "owner"}]}'
 
         - Assigns View permissions to some users:
-            curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \
-                --header 'Content-Type: application/json' \
-                --data-raw '{"groups": [],"organizations": [],"users": [{"id": 1000,"permissions": "view"}]}'
+
+            .. code-block:: bash
+
+                curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \\
+                    --header 'Content-Type: application/json' \\
+                    --data-raw '{"groups": [],"organizations": [],"users": [{"id": 1000,"permissions": "view"}]}'
 
         - Assigns View permissions to anyone:
-            curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \
-                --header 'Content-Type: application/json' \
-                --data-raw '{"groups": [],"organizations": [],"users": [{"id": -1,"permissions": "view"}]}'
+
+            .. code-block:: bash
+
+                curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \\
+                    --header 'Content-Type: application/json' \\
+                    --data-raw '{"groups": [],"organizations": [],"users": [{"id": -1,"permissions": "view"}]}'
 
         - Assigns View permissions to anyone and edit permissions to a Group on a Dataset:
-            curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \
-                --header 'Content-Type: application/json' \
-                --data-raw '{"groups": [{"id": 1,"permissions": "manage"}],"organizations": [],"users": [{"id": -1,"permissions": "view"}]}'
+
+            .. code-block:: bash
+
+                curl -u admin:admin --location --request PUT 'http://localhost:8000/api/v2/resources/<id>/permissions' \\
+                    --header 'Content-Type: application/json' \\
+                    --data-raw '{"groups": [{"id": 1,"permissions": "manage"}],"organizations": [],"users": [{"id": -1,"permissions": "view"}]}'
 
         """
+
         config = Configuration.load()
         resource = get_object_or_404(ResourceBase, pk=pk)
         _user_can_manage = request.user.has_perm("change_resourcebase_permissions", resource.get_self_resource())
@@ -779,37 +804,63 @@ class ResourceBaseViewSet(DynamicModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def resource_service_ingest(self, request, resource_type: str = None, *args, **kwargs):
-        """Instructs the Async dispatcher to execute a 'INGEST' operation
+        """
+        Instructs the Async dispatcher to execute an 'INGEST' operation.
 
-        - POST input_params: {
-            uuid: "<str: UUID>",
-            files: "<list(str) path>",
-            defaults: "{\"owner\":\"<str: username>\",<list: str>}",  # WARNING: 'owner' is mandatory
-            resource_type: "<enum: ['dataset', 'document', 'map', '<GeoApp: name>']>"
-        }
+        .. warning::
+            'owner' is mandatory in the `defaults` field.
 
-        - output_params: {
-            output: <int: number of resources deleted / 0 if none>
-        }
+        - **POST input_params**:
+            - `uuid`: "<str: UUID>"
+            - `files`: "<list(str) path>"
+            - `defaults`: "{\"owner\":\"<str: username>\",<list: str>}"
+            - `resource_type`: "<enum: ['dataset', 'document', 'map', '<GeoApp: name>']>"
 
-        - output: {
+        - **output_params**:
+            - `output`: <int: number of resources deleted / 0 if none>
+
+        - **output**:
+
+         .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "<str: execution ID>",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
             }
 
-        Sample Request:
+        **Sample Request**:
 
-        1. curl -v -X POST -u admin:admin -H "Content-Type: application/json" -d 'defaults={"owner":"admin","title":"pippo"}' -d 'files=["/mnt/c/Data/flowers.jpg"]'
-            http://localhost:8000/api/v2/resources/ingest/document
-            OUTPUT: {
+        1. **POST**:
+
+         .. code-block:: bash
+
+            curl -v -X POST -u admin:admin -H "Content-Type: application/json" \\
+                -d 'defaults={"owner":"admin","title":"pippo"}' \\
+                -d 'files=["/mnt/c/Data/flowers.jpg"]' \\
+                http://localhost:8000/api/v2/resources/ingest/document
+
+        **Response**:
+
+         .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "90ca670d-df60-44b6-b358-d792c6aecc58",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58"
             }
 
-        2. curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58
-            OUTPUT: {
+        2. **GET**:
+
+        .. code-block:: bash
+
+            curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58
+
+        **Response**:
+
+         .. code-block:: json
+
+            {
                 "user": "admin",
                 "status": "finished",
                 "func_name": "create",
@@ -818,8 +869,8 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 "last_updated": "2021-07-22T15:32:09.096129Z",
                 "input_params": {
                     "uuid": "fa404f64-eb01-11eb-8f91-00155d41f2fb",
-                    "files": "[\"/mnt/c/Data/flowers.jpg\"]",
-                    "defaults": "{\"owner\":\"admin\",\"title\":\"pippo\"}",
+                    "files": "['/mnt/c/Data/flowers.jpg']",
+                    "defaults": "{'owner':'admin','title':'pippo'}",
                     "resource_type": "dataset"
                 },
                 "output_params": {
@@ -880,37 +931,63 @@ class ResourceBaseViewSet(DynamicModelViewSet):
         permission_classes=[IsAuthenticated, UserHasPerms(perms_dict={"default": {"POST": ["base.add_resourcebase"]}})],
     )
     def resource_service_create(self, request, resource_type: str = None, *args, **kwargs):
-        """Instructs the Async dispatcher to execute a 'CREATE' operation
-        **WARNING**: This will create an empty dataset; if you need to upload a resource to GeoNode, consider using the endpoint "ingest" instead
+        """
+        Instructs the Async dispatcher to execute a 'CREATE' operation.
 
-        - POST input_params: {
-            uuid: "<str: UUID>",
-            defaults: "{\"owner\":\"<str: username>\",<list: str>}",  # WARNING: 'owner' is mandatory
-            resource_type: "<enum: ['dataset', 'document', 'map', '<GeoApp: name>']>"
-        }
+        .. warning::
+            This will create an empty dataset; if you need to upload a resource to GeoNode,
+            consider using the endpoint "ingest" instead.
 
-        - output_params: {
-            output: <int: number of resources deleted / 0 if none>
-        }
+        - **POST input_params**:
 
-        - output: {
+        :param uuid: <str: UUID>
+        :param defaults: {\"owner\":\"<str: username>\",<list: str>}
+        :param resource_type: <enum: ['dataset', 'document', 'map', '<GeoApp: name>']>
+
+        .. note:: 'owner' is mandatory
+
+        - **output_params**:
+
+        :param output: <int: number of resources deleted / 0 if none>
+
+        - **output**:
+
+        .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "<str: execution ID>",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
             }
 
-        Sample Request:
+        **Sample Request**:
 
-        1. curl -v -X POST -u admin:admin -H "Content-Type: application/json" -d 'defaults={"owner":"admin","title":"pippo"}'
-            http://localhost:8000/api/v2/resources/create/dataset
-            OUTPUT: {
+        .. code-block:: bash
+
+            1. curl -v -X POST -u admin:admin -H "Content-Type: application/json" \\
+                -d 'defaults={"owner":"admin","title":"pippo"}' \\
+                http://localhost:8000/api/v2/resources/create/dataset
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "90ca670d-df60-44b6-b358-d792c6aecc58",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58"
             }
 
-        2. curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58
-            OUTPUT: {
+        .. code-block:: bash
+
+            2. curl -v -X GET -u admin:admin \\
+                http://localhost:8000/api/v2/resource-service/execution-status/90ca670d-df60-44b6-b358-d792c6aecc58
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "user": "admin",
                 "status": "finished",
                 "func_name": "create",
@@ -919,7 +996,7 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 "last_updated": "2021-07-22T15:32:09.096129Z",
                 "input_params": {
                     "uuid": "fa404f64-eb01-11eb-8f91-00155d41f2fb",
-                    "defaults": "{\"owner\":\"admin\",\"title\":\"pippo\"}",
+                    "defaults": "{'owner':'admin','title':'pippo'}",
                     "resource_type": "dataset"
                 },
                 "output_params": {
@@ -929,6 +1006,7 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 }
             }
         """
+
         config = Configuration.load()
         if (
             config.read_only
@@ -984,31 +1062,50 @@ class ResourceBaseViewSet(DynamicModelViewSet):
     def resource_service_delete(self, request, pk, *args, **kwargs):
         """Instructs the Async dispatcher to execute a 'DELETE' operation over a valid 'uuid'
 
-        - DELETE input_params: {
-            id: "<str: ID>"
-        }
+        - DELETE
 
-        - output_params: {
-            output: <int: number of resources deleted / 0 if none>
-        }
+        .. code-block:: yaml
 
-        - output: {
-                "status": "ready",
-                "execution_id": "<str: execution ID>",
-                "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
+            -input_params: {
+                id: "<str: ID>"
             }
+
+            - output_params: {
+                output: <int: number of resources deleted / 0 if none>
+            }
+
+            - output: {
+                    "status": "ready",
+                    "execution_id": "<str: execution ID>",
+                    "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
+                }
 
         Sample request:
 
-        1. curl -v -X DELETE -u admin:admin http://localhost:8000/api/v2/resources/<id>/delete
-            OUTPUT: {
+        .. code-block:: bash
+
+            curl -v -X DELETE -u admin:admin http://localhost:8000/api/v2/resources/<id>/delete
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "status":"ready",
                 "execution_id":"7ed0b141-cf85-434f-bbfb-c02447a5221b",
                 "status_url":"http://localhost:8000/api/v2/resource-service/execution-status/7ed0b141-cf85-434f-bbfb-c02447a5221b"
             }
 
-        2. curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/7ed0b141-cf85-434f-bbfb-c02447a5221b
-            OUTPUT: {
+
+        .. code-block:: bash
+
+            curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/7ed0b141-cf85-434f-bbfb-c02447a5221b
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "user":"admin",
                 "status":"finished",
                 "func_name":"delete",
@@ -1019,6 +1116,7 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 "output_params":{"output":0}
             }
         """
+
         config = Configuration.load()
         resource = get_object_or_404(ResourceBase, pk=pk)
         if (
@@ -1068,24 +1166,32 @@ class ResourceBaseViewSet(DynamicModelViewSet):
     def resource_service_update(self, request, pk, *args, **kwargs):
         """Instructs the Async dispatcher to execute a 'UPDATE' operation over a valid 'uuid'
 
-        - PUT input_params: {
-            id: "<str: ID>"
-            xml_file: str = None
-            metadata_uploaded: bool = False
-            vals: dict = {}
-            regions: list = []
-            keywords: list = []
-            custom: dict = {}
-            notify: bool = True
-        }
+        - PUT
 
-        - output_params: {
-            output: {
-                uuid: "<str: UUID>"
+        .. code-block:: yaml
+
+           - input_params: {
+                id: "<str: ID>"
+                xml_file: str = None
+                metadata_uploaded: bool = False
+                vals: dict = {}
+                regions: list = []
+                keywords: list = []
+                custom: dict = {}
+                notify: bool = True
             }
-        }
 
-        - output: {
+            - output_params: {
+                output: {
+                    uuid: "<str: UUID>"
+                }
+            }
+
+        - output:
+
+        .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "<str: execution ID>",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
@@ -1093,15 +1199,29 @@ class ResourceBaseViewSet(DynamicModelViewSet):
 
         Sample Request:
 
-        1. curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'vals={"title":"pippo"}' http://localhost:8000/api/v2/resources/<id>/update
-            OUTPUT: {
+        .. code-block:: bash
+
+            curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'vals={"title":"pippo"}' http://localhost:8000/api/v2/resources/<id>/update
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "status":"ready",
                 "execution_id":"08846e84-eae4-11eb-84be-00155d41f2fb",
                 "status_url":"http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb"
             }
 
-        2. curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb
-            OUTPUT: {
+        .. code-block:: bash
+
+            curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "user": "admin",
                 "status": "finished",
                 "func_name": "update",
@@ -1110,7 +1230,7 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 "last_updated": "2021-07-22T14:42:56.284797Z",
                 "input_params": {
                     "uuid": "ee11541c-eaee-11eb-942c-00155d41f2fb",
-                    "vals": "{\"title\":\"pippo\"}",
+                    "vals": "{'title':'pippo'}",
                     "custom": {},
                     "notify": true,
                     "regions": [],
@@ -1127,9 +1247,13 @@ class ResourceBaseViewSet(DynamicModelViewSet):
 
         Sample Request with more parameters:
 
-        1. curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'vals={"title":"pippo"}' -d 'metadata_uploaded=true' -d 'keywords=["k1", "k2", "k3"]'
-            http://localhost:8000/api/v2/resources/<id>/update
+        .. code-block:: bash
+
+            curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'vals={"title":"pippo"}' -d 'metadata_uploaded=true' -d 'keywords=["k1", "k2", "k3"]'
+
+        http://localhost:8000/api/v2/resources/<id>/update
         """
+
         config = Configuration.load()
         resource = get_object_or_404(ResourceBase, pk=pk)
         if (
@@ -1198,19 +1322,27 @@ class ResourceBaseViewSet(DynamicModelViewSet):
     def resource_service_copy(self, request, pk, *args, **kwargs):
         """Instructs the Async dispatcher to execute a 'COPY' operation over a valid 'pk'
 
-        - PUT input_params: {
-            instance: "<str: ID>"
-            owner: "<str: username = <current_user>>"
-            defaults: dict = {}
-        }
+        PUT
 
-        - output_params: {
-            output: {
-                uuid: "<str: UUID>"
+        .. code-block:: yaml
+
+            input_params: {
+                instance: "<str: ID>"
+                owner: "<str: username = <current_user>>"
+                defaults: dict = {}
             }
-        }
 
-        - output: {
+            - output_params: {
+                output: {
+                    uuid: "<str: UUID>"
+                }
+            }
+
+        output:
+
+        .. code-block:: json
+
+            {
                 "status": "ready",
                 "execution_id": "<str: execution ID>",
                 "status_url": "http://localhost:8000/api/v2/resource-service/execution-status/<str: execution ID>"
@@ -1218,15 +1350,29 @@ class ResourceBaseViewSet(DynamicModelViewSet):
 
         Sample Request:
 
-        1. curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'defaults={"title":"pippo"}' http://localhost:8000/api/v2/resources/<id>/copy
-            OUTPUT: {
+        .. code-block:: bash
+
+            curl -v -X PUT -u admin:admin -H "Content-Type: application/json" -d 'defaults={"title":"pippo"}' http://localhost:8000/api/v2/resources/<id>/copy
+
+        OUTPUT:
+
+        .. code-block:: json
+
+            {
                 "status":"ready",
                 "execution_id":"08846e84-eae4-11eb-84be-00155d41f2fb",
                 "status_url":"http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb"
             }
 
-        2. curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb
-            OUTPUT: {
+        .. code-block:: bash
+
+            curl -v -X GET -u admin:admin http://localhost:8000/api/v2/resource-service/execution-status/08846e84-eae4-11eb-84be-00155d41f2fb
+
+        OUTPUT:
+
+        .. code-block:: yaml
+
+            {
                 "user": "admin",
                 "status": "finished",
                 "func_name": "update",
@@ -1244,6 +1390,7 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 }
             }
         """
+
         config = Configuration.load()
         resource = get_object_or_404(ResourceBase, pk=pk)
         if (
@@ -1398,6 +1545,40 @@ class ResourceBaseViewSet(DynamicModelViewSet):
         url_name="extra-metadata",
     )
     def extra_metadata(self, request, pk, *args, **kwargs):
+        """
+        - PUT
+            update specific metadata. The ID of the metadata is required to perform the update
+
+        .. code-block:: yaml
+
+            {
+                "id": 1,
+                "name": "foo_name",
+                "slug": "foo_sug",
+                "help_text": "object",
+                "field_type": "int",
+                "value": "object",
+                "category": "object"
+            }
+
+        - DELETE
+            Expect a payload with the IDs of the metadata that should be deleted. Payload be like:
+            [4, 3]
+
+        - POST
+
+        .. code-block:: yaml
+
+            {
+                "name": "foo_name",
+                "slug": "foo_sug",
+                "help_text": "object",
+                "field_type": "int",
+                "value": "object",
+                "category": "object"
+            }
+
+        """
         _obj = get_object_or_404(ResourceBase, pk=pk)
 
         if request.method == "GET":
@@ -1414,20 +1595,6 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 return Response(status=500, data=e.args[0])
 
         if request.method == "PUT":
-            """
-            update specific metadata. The ID of the metadata is required to perform the update
-            [
-                {
-                        "id": 1,
-                        "name": "foo_name",
-                        "slug": "foo_sug",
-                        "help_text": "object",
-                        "field_type": "int",
-                        "value": "object",
-                        "category": "object"
-                }
-            ]
-            """
             for _m in extra_metadata:
                 _id = _m.pop("id")
                 ResourceBase.objects.filter(id=_obj.id).first().metadata.filter(id=_id).update(metadata=_m)
@@ -1436,27 +1603,11 @@ class ResourceBaseViewSet(DynamicModelViewSet):
             return Response(ExtraMetadataSerializer().to_representation(_obj.metadata.all()))
         elif request.method == "DELETE":
             # delete single metadata
-            """
-            Expect a payload with the IDs of the metadata that should be deleted. Payload be like:
-            [4, 3]
-            """
             ResourceBase.objects.filter(id=_obj.id).first().metadata.filter(id__in=request.data).delete()
             _obj.refresh_from_db()
             return Response(ExtraMetadataSerializer().to_representation(_obj.metadata.all()))
         elif request.method == "POST":
             # add new metadata
-            """
-            [
-                {
-                        "name": "foo_name",
-                        "slug": "foo_sug",
-                        "help_text": "object",
-                        "field_type": "int",
-                        "value": "object",
-                        "category": "object"
-                }
-            ]
-            """
             for _m in extra_metadata:
                 new_m = ExtraMetadata.objects.create(resource=_obj, metadata=_m)
                 new_m.save()
@@ -1465,6 +1616,11 @@ class ResourceBaseViewSet(DynamicModelViewSet):
             return Response(ExtraMetadataSerializer().to_representation(_obj.metadata.all()), status=201)
 
     def _get_request_params(self, request, encode=False):
+        """
+        The request with the barer token access to the request.data during the token verification
+        so in this case if the request.body cannot not access, we just re-access to the
+        request.data to get the params needed
+        """
         try:
             return (
                 QueryDict(request.body, mutable=True, encoding="UTF-8")
@@ -1472,11 +1628,6 @@ class ResourceBaseViewSet(DynamicModelViewSet):
                 else QueryDict(request.body, mutable=True)
             )
         except Exception as e:
-            """
-            The request with the barer token access to the request.data during the token verification
-            so in this case if the request.body cannot not access, we just re-access to the
-            request.data to get the params needed
-            """
             logger.debug(e)
             return request.data
 

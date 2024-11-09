@@ -75,16 +75,21 @@ def resource_service_search(request, resource_type: str = None):
 @api_view(["GET"])
 def resource_service_exists(request, uuid: str):
     """
-    Returns a JSON boolean success field valorized with the 'exists' operation outcome.
+    Returns a JSON boolean `success` field indicating the outcome of the 'exists' operation.
 
-    -  GET http://localhost:8000/api/v2/resource-service/exists/13decd74-df04-11eb-a0c1-00155dc3de71
-       ```
-        200,
-        {
-            'success': true
-        }
-       ```
+    - Example:
+      GET http://localhost:8000/api/v2/resource-service/exists/13decd74-df04-11eb-a0c1-00155dc3de71
+
+      Response:
+
+      .. code-block:: bash
+
+         200 OK
+         {
+             "success": true
+         }
     """
+
     _exists = False
     if resource_manager.exists(uuid):
         _exists = get_resources_with_perms(request.user).filter(uuid=uuid).exists()
@@ -93,11 +98,13 @@ def resource_service_exists(request, uuid: str):
 
 @api_view(["GET"])
 def resource_service_execution_status(request, execution_id: str):
-    """Main dispatcher endpoint to follow an API request status progress
+    """
+    Main dispatcher endpoint to follow an API request status progress
 
     - GET input: <str: execution id>
     - output: <ExecutionRequest>
     """
+
     try:
         _exec_request = ExecutionRequest.objects.filter(exec_id=execution_id)
         if not _exec_request.exists():

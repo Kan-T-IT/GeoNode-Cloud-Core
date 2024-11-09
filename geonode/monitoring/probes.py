@@ -85,15 +85,17 @@ class BaseProbe:
     @staticmethod
     def get_disk():
         """
-        Returns list of drives with capacity and utilization
-        list item contains:
-            block device (/dev/sXX)
-            total capacity (in bytes)
-            used space
-            free space
-            utilization (as a percent)
-            mount point
+        Returns a list of drives with capacity and utilization.
+        Each list item contains:
+
+        - Block device (e.g., /dev/sXX)
+        - Total capacity (in bytes)
+        - Used space
+        - Free space
+        - Utilization (as a percentage)
+        - Mount point
         """
+
         partitions = psutil.disk_partitions()
         out = []
         usage = psutil.disk_io_counters(True)
@@ -124,14 +126,22 @@ class BaseProbe:
     @staticmethod
     def get_network():
         """
-        returns dictionary with ip information:
-        {ifname: {'mac': mac,
-                  'ip': ip,
-                  'traffic': {'in': txin,
-                              'out': txout}
-                  }
-        }
+        Returns a dictionary with IP information:
+
+        .. code-block:: python
+
+            {
+                ifname: {
+                    'mac': mac,
+                    'ip': ip,
+                    'traffic': {
+                        'in': txin,
+                        'out': txout
+                    }
+                }
+            }
         """
+
         out = {}
         iostats = psutil.net_io_counters(True)
         for ifname, ifdata in psutil.net_if_addrs().items():

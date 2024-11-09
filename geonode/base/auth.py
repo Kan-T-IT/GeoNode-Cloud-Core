@@ -50,9 +50,11 @@ def extract_user_from_headers(request):
 def extract_headers(request):
     """
     Extracts headers from the Django request object
+
     :param request: The current django.http.HttpRequest object
     :return: a dictionary with OAuthLib needed headers
     """
+
     headers = request.META.copy()
     if "wsgi.input" in headers:
         del headers["wsgi.input"]
@@ -221,6 +223,7 @@ def basic_auth_authenticate_user(auth_header: str):
 
     :param auth_header: Authorization header of the request
     """
+
     encoded_credentials = auth_header.split(" ")[1]  # Removes "Basic " to isolate credentials
     decoded_credentials = base64.b64decode(encoded_credentials).decode("utf-8").split(":")
     username = decoded_credentials[0]

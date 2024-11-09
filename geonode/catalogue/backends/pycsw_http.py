@@ -21,7 +21,9 @@ from geonode.catalogue.backends.generic import CatalogueBackend as GenericCatalo
 
 
 class CatalogueBackend(GenericCatalogueBackend):
-    """pycsw HTTP CSW backend"""
+    """
+    pycsw HTTP CSW backend
+    """
 
     def __init__(self, *args, **kwargs):
         """initialize pycsw HTTP CSW backend"""

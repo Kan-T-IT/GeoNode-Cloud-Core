@@ -111,8 +111,11 @@ class ContactRole(models.Model):
 class TopicCategory(models.Model):
     """
     Metadata about high-level geographic data thematic classification.
+
     It should reflect a list of codes from TC211
+
     See: http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml
+
     <CodeListDictionary gml:id="MD_MD_TopicCategoryCode">
     """
 
@@ -133,8 +136,11 @@ class TopicCategory(models.Model):
 class SpatialRepresentationType(models.Model):
     """
     Metadata information about the spatial representation type.
+
     It should reflect a list of codes from TC211
+
     See: http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml
+
     <CodeListDictionary gml:id="MD_SpatialRepresentationTypeCode">
     """
 
@@ -152,13 +158,16 @@ class SpatialRepresentationType(models.Model):
 
 
 class Region(MPTTModel):
+    """
+    Save bbox values in the database.
+
+    This is useful for spatial searches and for generating thumbnail images and metadata records.
+    """
+
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=255)
     parent = TreeForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="children")
 
-    # Save bbox values in the database.
-    # This is useful for spatial searches and for generating thumbnail images
-    # and metadata records.
     bbox_x0 = models.DecimalField(max_digits=30, decimal_places=15, blank=True, null=True)
     bbox_x1 = models.DecimalField(max_digits=30, decimal_places=15, blank=True, null=True)
     bbox_y0 = models.DecimalField(max_digits=30, decimal_places=15, blank=True, null=True)
@@ -170,17 +179,38 @@ class Region(MPTTModel):
 
     @property
     def bbox(self):
-        """BBOX is in the format: [x0,x1,y0,y1]."""
+        """
+        BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0,x1,y0,y1]
+        """
+
         return [self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, self.srid]
 
     @property
     def bbox_string(self):
-        """BBOX is in the format: [x0,y0,x1,y1]."""
+        """
+        BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0,y0,x1,y1]
+        """
+
         return ",".join([str(self.bbox_x0), str(self.bbox_y0), str(self.bbox_x1), str(self.bbox_y1)])
 
     @property
     def geographic_bounding_box(self):
-        """BBOX is in the format: [x0,x1,y0,y1]."""
+        """
+        BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0,x1,y0,y1]
+        """
+
         return bbox_to_wkt(self.bbox_x0, self.bbox_x1, self.bbox_y0, self.bbox_y1, srid=self.srid)
 
     @property
@@ -210,7 +240,9 @@ class RestrictionCodeType(models.Model):
     """
     Metadata information about the spatial representation type.
     It should reflect a list of codes from TC211
+
     See: http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml
+
     <CodeListDictionary gml:id="MD_RestrictionCode">
     """
 
@@ -262,7 +294,9 @@ class License(models.Model):
 
 
 class HierarchicalKeywordQuerySet(MP_NodeQuerySet):
-    """QuerySet to automatically create a root node if `depth` not given."""
+    """
+    QuerySet to automatically create a root node if `depth` not given.
+    """
 
     def create(self, **kwargs):
         if "depth" not in kwargs:
@@ -281,7 +315,10 @@ class HierarchicalKeyword(TagBase, MP_Node):
 
     @classmethod
     def resource_keywords_tree(cls, user, parent=None, resource_type=None, resource_name=None):
-        """Returns resource keywords tree as a dict object."""
+        """
+        Returns resource keywords tree as a dict object.
+        """
+
         user = user or get_anonymous_user()
         resource_types = [resource_type] if resource_type else ["dataset", "map", "document"] + get_geoapp_subtypes()
         qset = cls.get_tree(parent)
@@ -385,13 +422,15 @@ class TaggedContentItem(ItemBase):
 
 class _HierarchicalTagManager(_TaggableManager):
     def add(self, *tags, through_defaults=None, tag_kwargs=None):
+        """If str_tags has 0 elements Django actually optimizes that to not do a query.  Malcolm is very smart.
+        """
+
         if tag_kwargs is None:
             tag_kwargs = {}
 
         str_tags = set([t for t in tags if not isinstance(t, self.through.tag_model())])
         tag_objs = set(tags) - str_tags
-        # If str_tags has 0 elements Django actually optimizes that to not do a
-        # query.  Malcolm is very smart.
+
         try:
             existing = self.through.tag_model().objects.filter(name__in=str_tags, **tag_kwargs).all()
             tag_objs.update(existing)
@@ -585,7 +624,10 @@ class ResourceBaseManager(PolymorphicManager):
 
     @staticmethod
     def upload_files(resource_id, files, force=False):
-        """Update the ResourceBase model"""
+        """
+        Update the ResourceBase model
+        """
+
         try:
             out = []
             for f in files:
@@ -607,7 +649,10 @@ class ResourceBaseManager(PolymorphicManager):
 
     @staticmethod
     def cleanup_uploaded_files(resource_id):
-        """Remove uploaded files, if any"""
+        """
+        Remove uploaded files, if any
+        """
+
         if ResourceBase.objects.filter(id=resource_id).exists():
             _resource = ResourceBase.objects.filter(id=resource_id).get()
             _uploaded_folder = None
@@ -1002,6 +1047,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Send a notification when a resource is created or updated
         """
+
         if not self.resource_type and self.polymorphic_ctype and self.polymorphic_ctype.model:
             self.resource_type = self.polymorphic_ctype.model.lower()
 
@@ -1079,6 +1125,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Send a notification when a layer, map or document is deleted
         """
+
         from geonode.resource.manager import resource_manager
 
         resource_manager.remove_permissions(self.uuid, instance=self.get_real_instance())
@@ -1127,7 +1174,14 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     @property
     def bbox(self):
-        """BBOX is in the format: [x0, x1, y0, y1, srid]."""
+        """
+        BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0, x1, y0, y1, srid]
+        """
+
         if self.bbox_polygon:
             match = re.match(r"^(EPSG:)?(?P<srid>\d{4,6})$", self.srid)
             srid = int(match.group("srid")) if match else 4326
@@ -1138,8 +1192,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     @property
     def ll_bbox(self):
-        """BBOX is in the format [x0, x1, y0, y1, "EPSG:srid"]. Provides backwards
-        compatibility after transition to polygons."""
+
+        """BBOX is in the format
+
+        .. code-block:: none
+
+            [x0, x1, y0, y1, "EPSG:srid"]
+
+        Provides backwards compatibility after transition to polygons.
+        """
+
         if self.ll_bbox_polygon:
             _bbox = self.ll_bbox_polygon.extent
             srid = self.ll_bbox_polygon.srid
@@ -1149,7 +1211,14 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     @property
     def ll_bbox_string(self):
-        """WGS84 BBOX is in the format: [x0,y0,x1,y1]."""
+        """
+        WGS84 BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0,y0,x1,y1]
+        """
+
         if self.bbox_polygon:
             bbox = BBOXHelper.from_xy(self.ll_bbox[:4])
 
@@ -1159,8 +1228,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     @property
     def bbox_string(self):
-        """BBOX is in the format: [x0, y0, x1, y1]. Provides backwards compatibility
-        after transition to polygons."""
+        """
+        BBOX is in the format:
+
+        .. code-block:: none
+
+            [x0, y0, x1, y1]
+
+        Provides backwards compatibility after transition to polygons.
+        """
+
         if self.bbox_polygon:
             bbox = BBOXHelper.from_xy(self.bbox[:4])
 
@@ -1202,8 +1279,9 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     @property
     def geographic_bounding_box(self):
         """
-        Returns an EWKT representation of the bounding box in EPSG:4326
+        Returns an EWKT representation of the bounding box in EPSG 4326
         """
+
         if self.ll_bbox_polygon:
             bbox = polygon_from_bbox(self.ll_bbox_polygon.extent, 4326)
             return str(bbox)
@@ -1346,10 +1424,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Set `bbox_polygon` from bbox values.
 
-        :param bbox: list or tuple formatted as
-            [xmin, ymin, xmax, ymax]
+        :param bbox: list or tuple formatted as [xmin, ymin, xmax, ymax]
         :param srid: srid as string (e.g. 'EPSG:4326' or '4326')
         """
+
         try:
             bbox_polygon = Polygon.from_bbox(bbox)
             self.bbox_polygon = bbox_polygon.clone()
@@ -1364,10 +1442,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Set `ll_bbox_polygon` from bbox values.
 
-        :param bbox: list or tuple formatted as
-            [xmin, ymin, xmax, ymax]
+        :param bbox: list or tuple formatted as [xmin, ymin, xmax, ymax]
         :param srid: srid as string (e.g. 'EPSG:4326' or '4326')
         """
+
         try:
             bbox_polygon = Polygon.from_bbox(bbox)
             if srid == 4326 or srid.upper() == "EPSG:4326":
@@ -1391,12 +1469,17 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Calculate zoom level and center coordinates in mercator.
 
-        :param bbox: BBOX is either a `geos.Pologyon` or in the
-            format: [x0, x1, y0, y1], which is:
-            [min lon, max lon, min lat, max lat] or
+        :param bbox: BBOX is either a `geos.Pologyon` or in the format: [x0, x1, y0, y1], which is:
+
+            [min lon, max lon, min lat, max lat]
+
+            or
+
             [xmin, xmax, ymin, ymax]
+
         :type bbox: list
         """
+
         if isinstance(bbox, Polygon):
             self.set_bbox_polygon(bbox.extent, srid)
             self.set_center_zoom()
@@ -1419,6 +1502,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Sets the center coordinates and zoom level in EPSG:4326
         """
+
         if self.ll_bbox_polygon and len(self.ll_bbox_polygon.centroid.coords) > 0:
             bbox = self.ll_bbox_polygon.clone()
             center_x, center_y = bbox.centroid.coords
@@ -1433,7 +1517,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
                 pass
 
     def download_links(self):
-        """assemble download links for pycsw"""
+        """
+        Assemble download links for pycsw
+        """
+
         links = []
         for link in self.link_set.all():
             if link.link_type == "metadata":  # avoid recursion
@@ -1461,7 +1548,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return self.get_real_instance().embed_url if self != self.get_real_instance() else None
 
     def get_tiles_url(self):
-        """Return URL for Z/Y/X mapping clients or None if it does not exist."""
+        """
+        Return URL for Z/Y/X mapping clients or None if it does not exist.
+        """
+
         try:
             tiles_link = self.link_set.get(name="Tiles")
         except Link.DoesNotExist:
@@ -1470,7 +1560,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
             return tiles_link.url
 
     def get_legend(self):
-        """Return Link for legend or None if it does not exist."""
+        """
+        Return Link for legend or None if it does not exist.
+        """
+
         try:
             legends_link = self.link_set.filter(name="Legend")
         except Link.DoesNotExist:
@@ -1485,11 +1578,12 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
             return legends_link
 
     def get_legend_url(self, style_name=None):
-        """Return URL for legend or None if it does not exist.
-
-        The legend can be either an image (for Geoserver's WMS)
-        or a JSON object for ArcGIS.
         """
+        Return URL for legend or None if it does not exist.
+
+        The legend can be either an image (for Geoserver's WMS) or a JSON object for ArcGIS.
+        """
+
         legend = self.get_legend()
 
         if legend is None:
@@ -1505,7 +1599,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return None
 
     def get_ows_url(self):
-        """Return URL for OGC WMS server None if it does not exist."""
+        """
+        Return URL for OGC WMS server None if it does not exist.
+        """
+
         try:
             ows_link = self.link_set.get(name="OGC:WMS")
         except Link.DoesNotExist:
@@ -1514,10 +1611,12 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
             return ows_link.url
 
     def get_thumbnail_url(self):
-        """Return a thumbnail url.
+        """
+        Return a thumbnail url.
 
         It could be a local one if it exists, a remote one (WMS GetImage) for example
         """
+
         _thumbnail_url = self.thumbnail_url
         local_thumbnails = self.link_set.filter(name="Thumbnail")
         remote_thumbnails = self.link_set.filter(name="Remote Thumbnail")
@@ -1528,7 +1627,10 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return _thumbnail_url
 
     def has_thumbnail(self):
-        """Determine if the thumbnail object exists and an image exists"""
+        """
+        Determine if the thumbnail object exists and an image exists
+        """
+
         return self.link_set.filter(name="Thumbnail").exists()
 
     # Note - you should probably broadcast layer#post_save() events to ensure
@@ -1615,11 +1717,12 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
                 logger.error(f"Error when generating the thumbnail for resource {self.id}. ({e})")
 
     def set_missing_info(self):
-        """Set default permissions and point of contacts.
-
-        It is mandatory to call it from descendant classes
-        but hard to enforce technically via signals or save overriding.
         """
+        Set default permissions and point of contacts.
+
+        It is mandatory to call it from descendant classes but hard to enforce technically via signals or save overriding.
+        """
+
         user = None
         if self.owner:
             user = self.owner
@@ -1658,6 +1761,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Set metadata_author and/or point of contact (poc) to a resource when any of them is missing
         """
+
         if len(self.metadata_author) == 0:
             self.metadata_author = [self.owner]
         if len(self.poc) == 0:
@@ -1665,45 +1769,49 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
     @staticmethod
     def get_multivalue_role_property_names() -> List[str]:
-        """returns list of property names for all contact roles able to
-            handle multiple profile_users
-
-        Returns:
-            _type_: List(str)
-            _description: list of names
         """
+        Returns list of property names for all contact roles able to handle multiple profile_users
+
+        :returns: list of names
+        :rtype: list[str]
+        """
+
         return [role.name for role in Roles.get_multivalue_ones()]
 
     @staticmethod
     def get_multivalue_required_role_property_names() -> List[str]:
-        """returns list of property names for all contact roles that are required
-
-        Returns:
-            _type_: List(str)
-            _description: list of names
         """
+        Returns list of property names for all contact roles that are required
+
+        :returns: list of names
+        :rtype: list[str]
+        """
+
         return [role.name for role in (set(Roles.get_multivalue_ones()) & set(Roles.get_required_ones()))]
 
     @staticmethod
     def get_ui_toggled_role_property_names() -> List[str]:
-        """returns list of property names for all contact roles that are toggled of in metadata_editor
-
-        Returns:
-            _type_: List(str)
-            _description: list of names
         """
+        Returns list of property names for all contact roles that are toggled of in metadata_editor
+
+        :returns: list of names
+        :rtype: list[str]
+        """
+
         return [role.name for role in (set(Roles.get_toggled_ones()) & set(Roles.get_toggled_ones()))]
 
     # typing not possible due to: from geonode.base.forms import ResourceBaseForm; unable due to circular ...
     def set_contact_roles_from_metadata_edit(self, resource_base_form) -> bool:
-        """gets a ResourceBaseForm and extracts the Contact Role elements from it
-
-        Args:
-            resource_base_form (ResourceBaseForm): ResourceBaseForm with contact roles set
-
-        Returns:
-            bool: true if all contact roles could be set, else false
         """
+        Gets a ResourceBaseForm and extracts the Contact Role elements from it
+
+        :param resource_base_form: ResourceBaseForm with contact roles set
+        :type resource_base_form: ResourceBaseForm
+
+        :returns: True if all contact roles could be set, else False.
+        :rtype: bool
+        """
+
         failed = False
         for role in self.get_multivalue_role_property_names():
             try:
@@ -1714,13 +1822,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         return failed
 
     def __get_contact_role_elements__(self, role: str) -> Optional[List[settings.AUTH_USER_MODEL]]:
-        """general getter of for all contact roles except owner
-
-        Args:
-            role (str): string coresponding to ROLE_VALUES in geonode/people/enumarations, defining which propery is requested
-        Returns:
-            Optional[List[settings.AUTH_USER_MODEL]]: returns the requested contact role from the database
         """
+        General getter of for all contact roles except owner
+
+        :param role: String corresponding to `ROLE_VALUES` in `geonode/people/enumerations`, defining which property is requested.
+        :type role: str
+
+        :returns: The requested contact role from the database or None if not found.
+        :rtype: Optional[List[settings.AUTH_USER_MODEL]]
+        """
+
         try:
             contact_role = ContactRole.objects.filter(role=role, resource=self)
             contacts = [cr.contact for cr in contact_role]
@@ -1732,12 +1843,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     CONTACT_ROLE_USER_PROFILES_ALLOWED_TYPES = Union[settings.AUTH_USER_MODEL, QuerySet, List[settings.AUTH_USER_MODEL]]
 
     def __set_contact_role_element__(self, user_profile: CONTACT_ROLE_USER_PROFILES_ALLOWED_TYPES, role: str):
-        """general setter for all contact roles except owner in resource base
-
-        Args:
-            user_profile (CONTACT_ROLE_USER_PROFILES_ALLOWED_TYPES): _description_
-            role (str): tring coresponding to ROLE_VALUES in geonode/people/enumarations, defining which propery is to set
         """
+        General setter for all contact roles except owner in resource base.
+
+        :param user_profile: The user profile to be set, must be one of the allowed types in `CONTACT_ROLE_USER_PROFILES_ALLOWED_TYPES`.
+        :type user_profile: CONTACT_ROLE_USER_PROFILES_ALLOWED_TYPES
+
+        :param role: String corresponding to `ROLE_VALUES` in `geonode/people/enumerations`, defining which property is to be set.
+        :type role: str
+        """
+
 
         def __create_role__(
             resource, role: str, user_profile: settings.AUTH_USER_MODEL
@@ -1766,12 +1881,16 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
             logger.error(f"Bad profile format for role: {role} ...")
 
     def get_defined_multivalue_contact_roles(self) -> List[Tuple[List[settings.AUTH_USER_MODEL], str]]:
-        """Returns all set contact roles of the ressource with additional ROLE_VALUES from geonode.people.enumarations.ROLE_VALUES. Mainly used to generate output xml more easy.
-
-        Returns:
-              _type_: List[Tuple[List[people object], roles_label_name]]
-              _description: list tuples including two elements: 1. list of people have a certain role. 2. role label
         """
+        Returns all set contact roles of the resource with additional ROLE_VALUES from `geonode.people.enumerations.ROLE_VALUES`.
+        Mainly used to simplify the generation of output XML.
+
+        :returns: A list of tuples, where each tuple contains:
+            1. A list of people who have a certain role.
+            2. The role label.
+        :rtype: List[Tuple[List[people object], str]]
+        """
+
         return {
             role.label: self.__getattribute__(role.name)
             for role in Roles.get_multivalue_ones()
@@ -1782,12 +1901,13 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         """
         Get the first contact from the specified role.
 
-        Parameters:
-            role (str): The role of the contact.
+        :param role: The role of the contact.
+        :type role: str
 
-        Returns:
-            ContactRole or None: The first contact with the specified role, or None if not found.
+        :returns: The first contact with the specified role, or None if not found.
+        :rtype: Optional[ContactRole]
         """
+
         if contact := self.__get_contact_role_elements__(role):
             return contact[0]
         else:
@@ -1806,8 +1926,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def poc_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.poc)
 
-    # Contact Role: metadata_author
     def _get_metadata_author(self):
+        """
+        Contact Role: metadata_author
+        """
+
         return self.__get_contact_role_elements__(role="author")
 
     def _set_metadata_author(self, user_profile):
@@ -1819,8 +1942,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def metadata_author_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.metadata_author)
 
-    # Contact Role: PROCESSOR
     def _get_processor(self):
+        """
+        Contact Role: PROCESSOR
+        """
+
         return self.__get_contact_role_elements__(role=Roles.PROCESSOR.name)
 
     def _set_processor(self, user_profile):
@@ -1832,8 +1958,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def processor_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.processor)
 
-    # Contact Role: PUBLISHER
     def _get_publisher(self):
+        """
+        Contact Role: PUBLISHER
+        """
+
         return self.__get_contact_role_elements__(role=Roles.PUBLISHER.name)
 
     def _set_publisher(self, user_profile):
@@ -1845,8 +1974,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def publisher_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.publisher)
 
-    # Contact Role: CUSTODIAN
     def _get_custodian(self):
+        """
+        Contact Role: CUSTODIAN
+        """
+
         return self.__get_contact_role_elements__(role=Roles.CUSTODIAN.name)
 
     def _set_custodian(self, user_profile):
@@ -1858,8 +1990,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def custodian_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.custodian)
 
-    # Contact Role: DISTRIBUTOR
     def _get_distributor(self):
+        """
+        Contact Role: DISTRIBUTOR
+        """
+
         return self.__get_contact_role_elements__(role=Roles.DISTRIBUTOR.name)
 
     def _set_distributor(self, user_profile):
@@ -1871,8 +2006,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def distributor_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.distributor)
 
-    # Contact Role: RESOURCE_USER
     def _get_resource_user(self):
+        """
+        Contact Role: RESOURCE_USER
+        """
+
         return self.__get_contact_role_elements__(role=Roles.RESOURCE_USER.name)
 
     def _set_resource_user(self, user_profile):
@@ -1884,8 +2022,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def resource_user_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.resource_user)
 
-    # Contact Role: RESOURCE_PROVIDER
     def _get_resource_provider(self):
+        """
+       Contact Role: RESOURCE_PROVIDER
+        """
+
         return self.__get_contact_role_elements__(role=Roles.RESOURCE_PROVIDER.name)
 
     def _set_resource_provider(self, user_profile):
@@ -1897,8 +2038,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def resource_provider_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.resource_provider)
 
-    # Contact Role: ORIGINATOR
     def _get_originator(self):
+        """
+         Contact Role: ORIGINATOR
+        """
+
         return self.__get_contact_role_elements__(role=Roles.ORIGINATOR.name)
 
     def _set_originator(self, user_profile):
@@ -1910,8 +2054,11 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     def originator_csv(self):
         return ",".join(p.get_full_name() or p.username for p in self.originator)
 
-    # Contact Role: PRINCIPAL_INVESTIGATOR
     def _get_principal_investigator(self):
+        """
+        Contact Role: PRINCIPAL_INVESTIGATOR
+        """
+
         return self.__get_contact_role_elements__(role=Roles.PRINCIPAL_INVESTIGATOR.name)
 
     def _set_principal_investigator(self, user_profile):
@@ -1929,6 +2076,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
         This is implemented as a method so that derived classes can override it (for instance, Maps may add
         related datasets)
         """
+
         return (
             LinkedResource.get_linked_resources(target=self)
             if as_target
@@ -1937,7 +2085,9 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
 
 
 class LinkManager(models.Manager):
-    """Helper class to access links grouped by type"""
+    """
+    Helper class to access links grouped by type
+    """
 
     def data(self):
         return self.get_queryset().filter(link_type="data")
@@ -2000,19 +2150,21 @@ class LinkedResource(models.Model):
 
 
 class Link(models.Model):
-    """Auxiliary model for storing links for resources.
+    """
+    Auxiliary model for storing links for resources.
 
     This helps avoiding the need for runtime lookups
     to the OWS server or the CSW Catalogue.
 
     There are four types of links:
-     * original: For uploaded files (Shapefiles or GeoTIFFs)
-     * data: For WFS and WCS links that allow access to raw data
-     * image: For WMS and TMS links
-     * metadata: For CSW links
-     * OGC:WMS: for WMS service links
-     * OGC:WFS: for WFS service links
-     * OGC:WCS: for WCS service links
+
+        * original: For uploaded files (Shapefiles or GeoTIFFs)
+        * data: For WFS and WCS links that allow access to raw data
+        * image: For WMS and TMS links
+        * metadata: For CSW links
+        * OGC:WMS: for WMS service links
+        * OGC:WFS: for WFS service links
+        * OGC:WCS: for WCS service links
     """
 
     resource = models.ForeignKey(ResourceBase, blank=True, null=True, on_delete=models.CASCADE)
@@ -2094,11 +2246,11 @@ class MenuItem(models.Model):
 
 class Configuration(SingletonModel):
     """
-    A model used for managing the Geonode instance's global configuration,
-    without a need for reloading the instance.
+    A model used for managing the Geonode instance's global configuration, without a need for reloading the instance.
 
     Usage:
     from geonode.base.models import Configuration
+
     config = Configuration.load()
     """
 
@@ -2128,6 +2280,7 @@ def rating_post_save(instance, *args, **kwargs):
     """
     Used to fill the average rating field on OverallRating change.
     """
+
     ResourceBase.objects.filter(id=instance.object_id).update(rating=instance.rating)
 
 

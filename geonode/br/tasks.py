@@ -42,6 +42,7 @@ def restore_notification(self, recipients: List, backup_file: str, backup_md5: s
     """
     Function sending a CC email report of the restore procedure to a provided emails.
     """
+
     if exception:
         subject = "Geonode restore procedure FAILED."
         message = (

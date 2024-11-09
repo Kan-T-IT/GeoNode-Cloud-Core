@@ -17,6 +17,37 @@
 #
 #########################################################################
 
+"""
+Permissions will be managed according to a "compact" set:
+
+- view: view resource
+- download: view and download
+- edit: view download and edit (metadata, style, data)
+- manage: change permissions, delete resource, etc.
+
+The GET method will return:
+
+users:
+
+- username
+- first name
+- last name
+- permissions (view | download | edit | manage)
+
+organizations:
+
+- title
+- name
+- permissions (view | download | edit | manage)
+
+groups:
+
+- title
+- name
+- permissions (view | download | edit | manage)
+
+"""
+
 import copy
 import json
 import pprint
@@ -31,34 +62,6 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from geonode.utils import build_absolute_uri
 from geonode.groups.conf import settings as groups_settings
-
-"""
-Permissions will be managed according to a "compact" set:
-
- - view: view resource
- - download: view and download
- - edit: view download and edit (metadata, style, data)
- - manage: change permissions, delete resource, etc.
-
-The GET method will return:
-
-users:
- - username
- - first name
- - last name
- - permissions (view | download | edit | manage)
-
-organizations:
- - title
- - name
- - permissions (view | download | edit | manage)
-
-groups:
- - title
- - name
- - permissions (view | download | edit | manage)
-
-"""
 
 # Permissions mapping
 PERMISSIONS = {
@@ -216,7 +219,8 @@ PERM_SPEC_COMPACT_SCHEMA = {
 def _to_extended_perms(
     perm: str, resource_type: str = None, resource_subtype: str = None, is_owner: bool = False
 ) -> list:
-    """Explode "compact" permissions into an "extended" set, accordingly to the schema below:
+    """
+    Explode "compact" permissions into an "extended" set, accordingly to the schema below:
 
     - view: view resource
     - download: view and download
@@ -274,7 +278,8 @@ def _to_extended_perms(
 def _to_compact_perms(
     perms: list, resource_type: str = None, resource_subtype: str = None, is_owner: bool = False
 ) -> str:
-    """Compress standard permissions into a "compact" set, accordingly to the schema below:
+    """
+    Compress standard permissions into a "compact" set, accordingly to the schema below:
 
     - view: view resource
     - download: view and download
@@ -282,6 +287,7 @@ def _to_compact_perms(
     - manage: change permissions, delete resource, etc.
     - owner: admin permissions
     """
+
     if is_owner:
         return OWNER_RIGHTS
     if perms is None or len(perms) == 0:
@@ -321,7 +327,9 @@ def _binding(name, expected=True, ro=True, binding=None):
 
 
 class BindingFailed(Exception):
-    """Something in the API has changed"""
+    """
+    Something in the API has changed
+    """
 
     pass
 
@@ -400,45 +408,47 @@ class PermSpec(PermSpecConverterBase):
 
     @property
     def compact(self):
-        """Converts a standard and verbose 'perm_spec' into 'compact mode'.
+        """
+        Converts a standard and verbose 'perm_spec' into 'compact mode'.
 
-         - The method also recognizes special/internal security groups, like 'anonymous' and 'registered-members' and places
-           their permissions on a specific node called 'groups'.
-         - Every security group, different from the former ones, associated to a GeoNode 'GroupProfile', will be placed on a
-           node called 'organizations' instead.
-        e.g.:
+        - This method also recognizes special/internal security groups, such as 'anonymous' and 'registered-members',
+          and places their permissions in a specific node called 'groups'.
+        - Every security group different from the former ones, associated with a GeoNode 'GroupProfile',
+          will instead be placed in a node called 'organizations'.
 
-        ```
-        {
-            "users": [
-                {
-                    "id": 1001,
-                    "username": "afabiani",
-                    "first_name": "",
-                    "last_name": "",
-                    "avatar": "",
-                    "permissions": "manage",
-                    "is_superuser": <bool>,
-                    "is_staff": <bool>
-                }
-            ],
-            "organizations": [],
-            "groups": [
-                {
-                    "id": 3,
-                    "title": "Registered Members",
-                    "name": "registered-members",
-                    "permissions": "edit"
-                },
-                {
-                    "id": 2,
-                    "title": "anonymous",
-                    "name": "anonymous",
-                    "permissions": "download"
-                }
-            ]
-        }
-        ```
+        Example:
+
+        .. code-block:: json
+
+            {
+                "users": [
+                    {
+                        "id": 1001,
+                        "username": "afabiani",
+                        "first_name": "",
+                        "last_name": "",
+                        "avatar": "",
+                        "permissions": "manage",
+                        "is_superuser": true,
+                        "is_staff": false
+                    }
+                ],
+                "organizations": [],
+                "groups": [
+                    {
+                        "id": 3,
+                        "title": "Registered Members",
+                        "name": "registered-members",
+                        "permissions": "edit"
+                    },
+                    {
+                        "id": 2,
+                        "title": "anonymous",
+                        "name": "anonymous",
+                        "permissions": "download"
+                    }
+                ]
+            }
         """
         json = {}
         user_perms = []
@@ -620,30 +630,39 @@ class PermSpecCompact(PermSpecConverterBase):
 
     @property
     def extended(self):
-        """Converts a 'perm_spec' in 'compact mode' into standard and verbose one.
+        """
+        Converts a 'perm_spec' in 'compact mode' into a standard and verbose format.
 
-        e.g.:
+        Example:
 
-        ```
-        {
-            'groups': {
-                <Group: registered-members>: ['view_resourcebase',
-                                             'download_resourcebase',
-                                             'change_resourcebase'],
-                <Group: anonymous>: ['view_resourcebase']
-            },
-            'users': {
-                <Profile: AnonymousUser>: ['view_resourcebase'],
-                <Profile: afabiani>: ['view_resourcebase',
-                                    'download_resourcebase',
-                                    'change_resourcebase_metadata',
-                                    'change_resourcebase',
-                                    'delete_resourcebase',
-                                    'change_resourcebase_permissions',
-                                    'publish_resourcebase']
+        .. code-block:: json
+
+            {
+                "groups": {
+                    "<Group: registered-members>": [
+                        "view_resourcebase",
+                        "download_resourcebase",
+                        "change_resourcebase"
+                    ],
+                    "<Group: anonymous>": [
+                        "view_resourcebase"
+                    ]
+                },
+                "users": {
+                    "<Profile: AnonymousUser>": [
+                        "view_resourcebase"
+                    ],
+                    "<Profile: afabiani>": [
+                        "view_resourcebase",
+                        "download_resourcebase",
+                        "change_resourcebase_metadata",
+                        "change_resourcebase",
+                        "delete_resourcebase",
+                        "change_resourcebase_permissions",
+                        "publish_resourcebase"
+                    ]
+                }
             }
-        }
-        ```
         """
         json = {"users": {}, "groups": {}}
         for _u in self.users:

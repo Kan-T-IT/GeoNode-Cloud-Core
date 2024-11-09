@@ -97,6 +97,7 @@ class ThumbnailTests(GeoNodeBaseTestSupport):
         """
         Tests that an empty resource has a missing image as null.
         """
+
         self.assertFalse(self.rb.has_thumbnail())
         missing = self.rb.get_thumbnail_url()
         self.assertIsNone(missing)
@@ -105,6 +106,7 @@ class ThumbnailTests(GeoNodeBaseTestSupport):
         """
         Tests that an empty image does not change the current resource thumbnail.
         """
+
         current = self.rb.get_thumbnail_url()
         self.rb.save_thumbnail("test-thumb", None)
         self.assertEqual(current, self.rb.get_thumbnail_url())
@@ -114,6 +116,7 @@ class ThumbnailTests(GeoNodeBaseTestSupport):
         """
         Tests that an monochromatic image does not change the current resource thumbnail.
         """
+
         filename = "test-thumb"
 
         current = self.rb.get_thumbnail_url()
@@ -129,6 +132,7 @@ class ThumbnailTests(GeoNodeBaseTestSupport):
         """
         Bunch of tests on thumb_utils helpers.
         """
+
         filename = "test-thumb"
         upload_path = thumb_utils.thumb_path(filename)
         self.assertEqual(upload_path, os.path.join(settings.THUMBNAIL_LOCATION, filename))
@@ -155,9 +159,9 @@ class TestThumbnailUrl(GeoNodeBaseTestSupport):
 class TestCreationOfMissingMetadataAuthorsOrPOC(ThumbnailTests):
     def test_add_missing_metadata_author_or_poc(self):
         """
-        Test that calling add_missing_metadata_author_or_poc resource method sets
-        a missing metadata_author and/or point of contact (poc) to resource owner
+        Test that calling add_missing_metadata_author_or_poc resource method setsa missing metadata_author and/or point of contact (poc) to resource owner
         """
+
         user, _ = get_user_model().objects.get_or_create(username="zlatan_i")
 
         self.rb.owner = user
@@ -746,17 +750,17 @@ class TestGetVisibleResource(TestCase):
 
     def test_category_data_not_shown_for_missing_resourcebase_permissions(self):
         """
-        Test that a user without view permissions of a resource base does not see
-        ISO category format data of the ISO category
+        Test that a user without view permissions of a resource base does not see ISO category format data of the ISO category
         """
+
         categories = get_visibile_resources(self.user)
         self.assertEqual(categories["iso_formats"].count(), 0)
 
     def test_category_data_shown_for_with_resourcebase_permissions(self):
         """
-        Test that a user with view permissions of a resource base can see
-        ISO format data of the ISO category
+        Test that a user with view permissions of a resource base can see ISO format data of the ISO category
         """
+
         assign_perm("view_resourcebase", self.user, self.rb)
         categories = get_visibile_resources(self.user)
         self.assertEqual(categories["iso_formats"].count(), 1)
@@ -765,6 +769,7 @@ class TestGetVisibleResource(TestCase):
         """
         Test that a standard user won't be able to show ADMINS_ONLY_NOTICE_TYPES
         """
+
         self.assertFalse(show_notification("monitoring_alert", self.user))
         self.assertTrue(show_notification("request_download_resourcebase", self.user))
 
@@ -833,7 +838,10 @@ class TestHtmlTagRemoval(SimpleTestCase):
 
 
 class TestTagThesaurus(TestCase):
-    #  loading test thesausurs
+    """
+    Loading test thesausurs
+    """
+
     fixtures = ["test_thesaurus.json"]
 
     def setUp(self):
@@ -901,15 +909,20 @@ class TestTagThesaurus(TestCase):
 
 @override_settings(THESAURUS_DEFAULT_LANG="en")
 class TestThesaurusAvailableForm(TestCase):
-    #  loading test thesausurs
+    """
+    Loading test thesausurs
+    """
+
     fixtures = ["test_thesaurus.json"]
 
     def setUp(self):
         self.sut = ThesaurusAvailableForm
 
     def test_form_is_valid_if_all_fields_are_missing(self):
-        #  is now always true since the required is moved to the UI
-        #  (like the other fields)
+        """
+        Is now always true since the required is moved to the UI (like the other fields)
+        """
+
         actual = self.sut(data={})
         self.assertTrue(actual.is_valid())
 
@@ -942,7 +955,10 @@ class TestThesaurusAvailableForm(TestCase):
         self.assertEqual(fields[1][0], "1")
 
     def test_will_return_thesaurus_with_the_defaul_order_as_0(self):
-        # Update thesaurus order to 0 in order to check if the default order by id is observed
+        """
+        Update thesaurus order to 0 in order to check if the default order by id is observed
+        """
+
         t = Thesaurus.objects.get(identifier="inspire-theme")
         t.order = 0
         t.save()
@@ -954,8 +970,10 @@ class TestThesaurusAvailableForm(TestCase):
         self.assertEqual(fields[1][0], "2")
 
     def test_get_thesuro_key_label_with_cmd_language_code(self):
-        # in python test language code look like 'en' this test checks if key label result function
-        # returns correct results
+        """
+        In python test language code look like 'en' this test checks if key label result function returns correct results
+        """
+
         tid = 1
         translation.activate("en")
         t_available_form = ThesaurusAvailableForm(data={"1": tid})
@@ -963,8 +981,10 @@ class TestThesaurusAvailableForm(TestCase):
         self.assertNotEqual(results[1], THESAURUS_RESULT_LIST_SEPERATOR)
 
     def test_get_thesuro_key_label_with_browser_language_code(self):
-        # in browser scenario language does not look like "it", but rather include coutry code
-        # like "it-it" this test checks if _get_thesauro_keyword_label can handle this
+        """
+        In browser scenario language does not look like "it", but rather include coutry code like "it-it" this test checks if _get_thesauro_keyword_label can handle this
+        """
+
         tid = 1
         translation.activate("en-us")
         t_available_form = ThesaurusAvailableForm(data={"1": tid})
@@ -1077,27 +1097,32 @@ class TestGenerateThesaurusReference(TestCase):
     fixtures = ["test_thesaurus.json"]
 
     def setUp(self):
+        """
+        If the keyword.about does not exists, the url created will have a prefix and a specifier:
+        as prefix:
+
+            - use the Keyword's thesaurus.about URI if it exists,
+            - otherwise use as prefix the geonode site URL composed with some thesaurus info: f'{settings.SITEURL}/thesaurus/{thesaurus.identifier}'
+
+        as specifier:
+
+            - we may use the ThesaurusKeyword.alt_label if it exists, otherwise its id
+
+        So the final about field value will be composed as f'{prefix}#{specifier}'
+        """
+
         self.site_url = settings.SITEURL if hasattr(settings, "SITEURL") else "http://localhost"
 
-    """
-    If the keyword.about does not exists, the url created will have a prefix and a specifier:
-    as prefix:
-        - use the Keyword's thesaurus.about URI if it exists,
-        - otherwise use as prefix the geonode site URL composed with some thesaurus info: f'{settings.SITEURL}/thesaurus/{thesaurus.identifier}'
-    as specifier:
-        - we may use the ThesaurusKeyword.alt_label if it exists, otherwise its id
-
-    So the final about field value will be composed as f'{prefix}#{specifier}'
-    """
-
     def test_should_return_keyword_url(self):
+        """
+        Check if the expected about has been created and that the instance is correctly updated
+        """
+
         expected = "http://inspire.ec.europa.eu/theme/ad"
         keyword = ThesaurusKeyword.objects.get(id=1)
         actual = generate_thesaurus_reference(keyword)
         keyword.refresh_from_db()
-        """
-        Check if the expected about has been created and that the instance is correctly updated
-        """
+
         self.assertEqual(expected, actual)
         self.assertEqual(expected, keyword.about)
 
@@ -1109,6 +1134,7 @@ class TestGenerateThesaurusReference(TestCase):
         """
         Check if the expected about has been created and that the instance is correctly updated
         """
+
         self.assertEqual(expected, actual)
         self.assertEqual(expected, keyword.about)
 
@@ -1120,6 +1146,7 @@ class TestGenerateThesaurusReference(TestCase):
         """
         Check if the expected about has been created and that the instance is correctly updated
         """
+
         self.assertEqual(expected, actual)
         self.assertEqual(expected, keyword.about)
 
@@ -1131,6 +1158,7 @@ class TestGenerateThesaurusReference(TestCase):
         """
         Check if the expected about has been created and that the instance is correctly updated
         """
+
         self.assertEqual(expected, actual)
         self.assertEqual(expected, keyword.about)
 
@@ -1142,6 +1170,7 @@ class TestGenerateThesaurusReference(TestCase):
         """
         Check if the expected about has been created and that the instance is correctly updated
         """
+
         self.assertEqual(expected, actual)
         self.assertEqual(expected, keyword.about)
 

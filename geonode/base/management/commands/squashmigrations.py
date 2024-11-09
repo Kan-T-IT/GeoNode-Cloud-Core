@@ -17,9 +17,9 @@
 #
 #########################################################################
 """
-A squashmigrations command which does some monkeypatching on the RunPython operation
-to allow squashing migrations which use RunPython.noop, even on Python 2
+A squashmigrations command which does some monkeypatching on the RunPython operation to allow squashing migrations which use RunPython.noop, even on Python 2
 """
+
 from django.core.management.commands.squashmigrations import Command as DjangoCommand
 from django.db.migrations import RunPython
 

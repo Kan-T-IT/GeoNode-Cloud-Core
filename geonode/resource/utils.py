@@ -61,6 +61,7 @@ class KeywordHandler:
     """
     Object needed to handle the keywords coming from the XML
     The expected input are:
+
      - instance (Dataset/Document/Map): instance of any object inherited from ResourceBase.
      - keywords (list(dict)): Is required to analyze the keywords to find if some thesaurus is available.
     """
@@ -82,9 +83,9 @@ class KeywordHandler:
     def handle_metadata_keywords(self):
         """
         Method the extract the keyword from the dict.
-        If the keyword are passed, try to extract them from the dict
-        by splitting free-keyword from the thesaurus
+        If the keyword are passed, try to extract them from the dict by splitting free-keyword from the thesaurus
         """
+
         fkeyword = []
         tkeyword = []
         if len(self.keywords) > 0:
@@ -450,6 +451,7 @@ def resourcebase_post_save(instance, *args, **kwargs):
     Used to fill any additional fields after the save.
     Has to be called by the children
     """
+
     if instance:
         instance = call_storers(instance.get_real_instance(), kwargs.get("custom", {}))
         if hasattr(instance, "abstract") and not getattr(instance, "abstract", None):

@@ -43,6 +43,7 @@ def create_dataset(name, title, owner_name, geometry_type, attributes=None):
     """
     Create an empty layer in GeoServer and register it in GeoNode.
     """
+
     # first validate parameters
     if geometry_type not in ("Point", "LineString", "Polygon"):
         msg = "geometry must be Point, LineString or Polygon"
@@ -60,6 +61,7 @@ def create_gn_dataset(workspace, datastore, name, title, owner_name):
     """
     Associate a layer in GeoNode for a given layer in GeoServer.
     """
+
     owner = get_user_model().objects.get(username=owner_name)
 
     layer = resource_manager.create(
@@ -93,28 +95,34 @@ def create_gn_dataset(workspace, datastore, name, title, owner_name):
 
 def get_attributes(geometry_type, json_attrs=None):
     """
-    Convert a json representation of attributes to a Python representation.
+    Convert a JSON representation of attributes to a Python representation.
 
-    parameters:
+    Parameters:
 
-    json_attrs
-    {
-      "field_str": "string",
-      "field_int": "integer",
-      "field_date": "date",
-      "field_float": "float"
-    }
+    - json_attrs:
 
-    geometry_type: a string which can be "Point", "LineString" or "Polygon"
+        .. code-block:: json
+
+            {
+                "field_str": "string",
+                "field_int": "integer",
+                "field_date": "date",
+                "field_float": "float"
+            }
+
+    - geometry_type: A string which can be "Point", "LineString", or "Polygon"
 
     Output:
-    [
-         ['the_geom', u'com.vividsolutions.jts.geom.Polygon', {'nillable': False}],
-         ['field_str', 'java.lang.String', {'nillable': True}],
-         ['field_int', 'java.lang.Integer', {'nillable': True}],
-         ['field_date', 'java.util.Date', {'nillable': True}],
-         ['field_float', 'java.lang.Float', {'nillable': True}]
-    ]
+
+    .. code-block:: python
+
+        [
+            ['the_geom', u'com.vividsolutions.jts.geom.Polygon', {'nillable': False}],
+            ['field_str', 'java.lang.String', {'nillable': True}],
+            ['field_int', 'java.lang.Integer', {'nillable': True}],
+            ['field_date', 'java.util.Date', {'nillable': True}],
+            ['field_float', 'java.lang.Float', {'nillable': True}]
+        ]
     """
 
     lattrs = []

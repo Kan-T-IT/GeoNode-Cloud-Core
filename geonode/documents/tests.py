@@ -112,7 +112,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
 
     @patch("geonode.documents.tasks.create_document_thumbnail")
     def test_create_document_with_no_rel(self, thumb):
-        """Tests the creation of a document with no relations"""
+        """
+        Tests the creation of a document with no relations
+        """
+
         thumb.return_value = True
         f = [f"{settings.MEDIA_ROOT}/img.gif"]
 
@@ -122,7 +125,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         self.assertEqual(Document.objects.get(pk=c.id).title, "theimg")
 
     def test_remote_document_is_marked_remote(self):
-        """Tests creating an external document set its sourcetype to REMOTE."""
+        """
+        Tests creating an external document set its sourcetype to REMOTE.
+        """
+
         self.client.login(username="admin", password="admin")
         form_data = {
             "title": "A remote document through form is remote",
@@ -137,7 +143,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         self.assertEqual(d.sourcetype, SOURCE_TYPE_REMOTE)
 
     def test_download_is_not_ajax_safe(self):
-        """Remote document is mark as not safe."""
+        """
+        Remote document is mark as not safe.
+        """
+
         self.client.login(username="admin", password="admin")
         form_data = {
             "title": "A remote document through form is remote",
@@ -152,12 +161,17 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         self.assertFalse(d.download_is_ajax_safe)
 
     def test_download_is_ajax_safe(self):
-        """Remote document is mark as not safe."""
+        """
+        Remote document is mark as not safe.
+        """
+
         d = create_single_doc("example_doc_name")
         self.assertTrue(d.download_is_ajax_safe)
 
     def test_create_document_url(self):
-        """Tests creating an external document instead of a file."""
+        """
+        Tests creating an external document instead of a file.
+        """
 
         superuser = get_user_model().objects.get(pk=2)
         c = resource_manager.create(
@@ -177,6 +191,7 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         """
         Tests creating and updating external documents.
         """
+
         self.client.login(username="admin", password="admin")
         form_data = {
             "title": "GeoNode Map",
@@ -194,6 +209,7 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         """
         Tests the Upload form.
         """
+
         form_data = dict()
         form = DocumentCreateForm(data=form_data)
         self.assertFalse(form.is_valid())
@@ -350,7 +366,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
             self.assertEqual(form.errors, {"doc_file": [expected_error]})
 
     def test_document_embed(self):
-        """/documents/1 -> Test accessing the embed view of a document"""
+        """
+        /documents/1 -> Test accessing the embed view of a document
+        """
+
         d = Document.objects.all().first()
         d.set_default_permissions()
 
@@ -358,7 +377,9 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         self.assertEqual(response.status_code, 200)
 
     def test_access_document_upload_form(self):
-        """Test the form page is returned correctly via GET request /documents/upload"""
+        """
+        Test the form page is returned correctly via GET request /documents/upload
+        """
 
         log = self.client.login(username="bobby", password="bob")
         self.assertTrue(log)
@@ -366,7 +387,9 @@ class DocumentsTest(GeoNodeBaseTestSupport):
         self.assertEqual(response.status_code, 405)
 
     def test_document_isuploaded(self):
-        """/documents/upload -> Test uploading a document"""
+        """
+        /documents/upload -> Test uploading a document
+        """
 
         f = SimpleUploadedFile("test_img_file.gif", self.imgfile.read(), "image/gif")
         m = Map.objects.first()
@@ -387,7 +410,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
     # Permissions Tests
 
     def test_set_document_permissions(self):
-        """Verify that the set_document_permissions view is behaving as expected"""
+        """
+        Verify that the set_document_permissions view is behaving as expected
+        """
+
         # Get a document to work with
         document = Document.objects.first()
 
@@ -410,7 +436,10 @@ class DocumentsTest(GeoNodeBaseTestSupport):
 
     @patch("geonode.documents.tasks.create_document_thumbnail")
     def test_ajax_document_permissions(self, create_thumb):
-        """Verify that the ajax_document_permissions view is behaving as expected"""
+        """
+        Verify that the ajax_document_permissions view is behaving as expected
+        """
+
         create_thumb.return_value = True
         # Setup some document names to work with
         f = [f"{settings.MEDIA_ROOT}/img.gif"]
@@ -639,7 +668,10 @@ class DocumentResourceLinkTestCase(GeoNodeBaseTestSupport):
         )
 
     def test_create_document_with_links(self):
-        """Tests the creation of document links."""
+        """
+        Tests the creation of document links.
+        """
+
         f = [f"{settings.MEDIA_ROOT}/img.gif"]
         superuser = get_user_model().objects.get(pk=2)
 
@@ -703,6 +735,7 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
         Test that keyword multiselect widget is disabled when the user is not an admin
         when FREETEXT_KEYWORDS_READONLY=True
         """
+
         self.client.login(username=self.not_admin.username, password="very-secret")
         url = reverse("document_metadata", args=(self.test_doc.pk,))
         with self.settings(FREETEXT_KEYWORDS_READONLY=True):
@@ -729,6 +762,7 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
         """
         Test that only admin users can create/edit keywords
         """
+
         admin = self.not_admin
         admin.is_superuser = True
         admin.save()
@@ -741,9 +775,9 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
 
     def test_that_non_admin_user_can_create_write_to_map_without_keyword(self):
         """
-        Test that non admin users can write to maps without creating/editing keywords
-        when FREETEXT_KEYWORDS_READONLY=True
+        Test that non admin users can write to maps without creating/editing keywords when FREETEXT_KEYWORDS_READONLY=True
         """
+
         self.client.login(username=self.not_admin.username, password="very-secret")
         url = reverse("document_metadata", args=(self.test_doc.pk,))
         with self.settings(FREETEXT_KEYWORDS_READONLY=True):
@@ -766,6 +800,7 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
         """
         Test that non admin users cannot edit/create keywords when FREETEXT_KEYWORDS_READONLY=True
         """
+
         self.client.login(username=self.not_admin.username, password="very-secret")
         url = reverse("document_metadata", args=(self.test_doc.pk,))
         with self.settings(FREETEXT_KEYWORDS_READONLY=True):
@@ -776,9 +811,9 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
 
     def test_that_keyword_multiselect_is_enabled_for_non_admin_users_when_freetext_keywords_readonly_istrue(self):
         """
-        Test that keyword multiselect widget is not disabled when the user is not an admin
-        and FREETEXT_KEYWORDS_READONLY=False
+        Test that keyword multiselect widget is not disabled when the user is not an admin and FREETEXT_KEYWORDS_READONLY=False
         """
+
         self.client.login(username=self.not_admin.username, password="very-secret")
         url = reverse("document_metadata", args=(self.test_doc.pk,))
         with self.settings(FREETEXT_KEYWORDS_READONLY=False):
@@ -791,6 +826,7 @@ class DocumentViewTestCase(GeoNodeBaseTestSupport):
         """
         Test that non admin users can edit/create keywords when FREETEXT_KEYWORDS_READONLY=False
         """
+
         self.client.login(username=self.not_admin.username, password="very-secret")
         url = reverse("document_metadata", args=(self.test_doc.pk,))
         with self.settings(FREETEXT_KEYWORDS_READONLY=False):

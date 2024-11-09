@@ -79,11 +79,14 @@ class BaseFacetingView(APIView):
     def _prefilter_topics(cls, request):
         """
         Perform some prefiltering on resources, such as
+
           - auth visibility
           - filtering by other facets already applied
+
         :param request:
         :return: a QuerySet on ResourceBase
         """
+
         logger.debug("Filtering by user '%s'", request.user)
         filters = {k: vlist for k, vlist in request.query_params.lists() if k.startswith("filter{")}
         logger.warning(f"FILTERING BY {filters}")
@@ -101,6 +104,7 @@ class BaseFacetingView(APIView):
         """
         :return: the resolved language, a boolean telling if the language was requested
         """
+
         # first try with an explicit request using params
         if lang := request.GET.get(PARAM_LANG, None):
             return lang, True
@@ -115,6 +119,7 @@ class BaseFacetingView(APIView):
         """
         Parse boolean query params
         """
+
         val = request.GET.get(name, None)
         if val is None:
             return fallback

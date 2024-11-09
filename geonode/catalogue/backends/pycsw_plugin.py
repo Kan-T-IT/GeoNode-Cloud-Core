@@ -99,6 +99,7 @@ class GeoNodeRepository(Repository):
         """
         Stub to mock a pycsw dataset object for Transactions
         """
+
         return type("ResourceBase", (object,), {})
 
     def query_ids(self, ids):
@@ -129,6 +130,7 @@ class GeoNodeRepository(Repository):
         """
         Query to get latest (default) or earliest update to repository
         """
+
         if direction == "min":
             return ResourceBase.objects.aggregate(Min("last_updated"))["last_updated__min"].strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
@@ -143,6 +145,7 @@ class GeoNodeRepository(Repository):
         """
         Query by source
         """
+
         return self._get_repo_filter(ResourceBase.objects).filter(url=source)
 
     def query(self, constraint, sortby=None, typenames=None, maxrecords=10, startposition=0):
@@ -206,6 +209,7 @@ class GeoNodeRepository(Repository):
         """
         Apply repository wide side filter / mask query
         """
+
         if self.filter is not None:
             return query.extra(where=[self.filter])
         return query

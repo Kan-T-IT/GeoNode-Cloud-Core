@@ -25,23 +25,17 @@ from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 
 class ListPatchRouter(ExtendedSimpleRouter):
-    """A router that allows performing PATCH requests against the `list` endpoint
+    """
+    A router that enables PATCH requests on the `list` endpoint.
 
-    This router is used in order to provide API endpoints that respond to PATCH
-    requsts against a viewset's `list` endpoint. It is useful for situations where it
-    is necessary to perform a batch update of multiple resources. For a use case,
-    consider the selection of which remote resources should be harvestable by the local
-    GeoNode:
+    This router is designed to provide API endpoints that accept PATCH requests targeting a viewset's `list` endpoint. It is useful for batch updates on multiple resources.
 
-    - User is shown a (paginated) list of resources that are available on the remote
-    service
-    - User must now choose which of these harvestable resources should be harvested
-    - Instead of forcing the user to make multiple PATCH requests to each harvestable
-    resource's detail page in order to set the resource's `should_be_harvested`
-    property, user can perform a PATCH request to
-    `harvesters/{harvester-id}/harvestable-resources` and set multiple resources'
-    `should_be_harvested` at the same time
+    **Use case example:**
+    Consider the scenario of selecting remote resources for harvesting by the local GeoNode:
 
+    1. The user views a (paginated) list of resources available on the remote service.
+    2. The user then selects which resources should be harvested.
+    3. Instead of requiring multiple PATCH requests for each individual resource's detail page to update the `should_be_harvested` property, the user can make a single PATCH request to `harvesters/{harvester-id}/harvestable-resources` to update the `should_be_harvested` property on multiple resources simultaneously.
     """
 
     routes = [

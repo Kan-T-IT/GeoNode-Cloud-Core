@@ -9,12 +9,9 @@ register = template.Library()
 @register.filter(name="sanitize_html")
 def sanitize_html(value):
     """
-    This filter can be used in Django templates to ensure that HTML content is safe to render. It leverages the
-    nh3 library (https://github.com/messense/nh3) to remove dangerous tags and JavaScript patterns.
+    This filter can be used in Django templates to ensure that HTML content is safe to render. It leverages the nh3 library (https://github.com/messense/nh3) to remove dangerous tags and JavaScript patterns.
 
-    The allowed HTML tags and attributes can be
-    configured via the 'NH3_DEFAULT_CONFIG' setting in Django's settings.py. If this configuration is not set, a default
-    set of safe tags will be used.
+    The allowed HTML tags and attributes can be configured via the 'NH3_DEFAULT_CONFIG' setting in Django's settings.py. If this configuration is not set, a default set of safe tags will be used.
 
     Usage in templates: {{ some_variable|sanitize_html|safe }}
 

@@ -78,21 +78,30 @@ class DocumentViewSet(DynamicModelViewSet):
         doc_file: the open file
 
         The API expect this kind of JSON:
-        {
-            "document": {
-                "title": "New document",
-                "metadata_only": true,
-                "file_path": "/home/mattia/example.json"
+
+        .. code-block:: json
+
+            {
+                "document": {
+                    "title": "New document",
+                    "metadata_only": true,
+                    "file_path": "/home/mattia/example.json"
+                }
             }
-        }
+
         File path rappresent the filepath where the file to upload is saved.
 
         or can be also a form-data:
-        curl --location --request POST 'http://localhost:8000/api/v2/documents' \
-        --form 'title="Super Title2"' \
-        --form 'doc_file=@"/C:/Users/user/Pictures/BcMc-a6T9IM.jpg"' \
-        --form 'metadata_only="False"'
+
+        .. code-block:: bash
+
+            curl --location --request POST 'http://localhost:8000/api/v2/documents' \\
+            --form 'title="Super Title2"' \\
+            --form 'doc_file=@"/C:/Users/user/Pictures/BcMc-a6T9IM.jpg"' \\
+            --form 'metadata_only="False"'
+
         """
+
         manager = None
         serializer.is_valid(raise_exception=True)
         file = serializer.validated_data.pop("file_path", None) or serializer.validated_data.pop("doc_file", None)

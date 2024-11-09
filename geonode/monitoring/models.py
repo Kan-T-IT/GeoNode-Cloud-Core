@@ -1873,14 +1873,19 @@ def populate():
 
 def do_autoconfigure():
     """
-    Create configuration from geonode's settings:
-     * extract all hosts
-     * create geonode instances
-      * create host-geonode instances (favor this instead of geoserver)
+    Create configuration from GeoNode's settings:
 
-     * create geoserver instances
-      * create host-geoserver instances if needed
+    - Extract all hosts
+
+    - Create GeoNode instances
+
+      - Create host-GeoNode instances (prefer this instead of GeoServer)
+
+    - Create GeoServer instances
+
+      - Create host-GeoServer instances if needed
     """
+
     # get list of services
     wsite = urlparse(settings.SITEURL)
     # default host
@@ -1986,6 +1991,7 @@ def do_reload():
     """
     This will reload uwsgi if it's available
     """
+
     try:
         import uwsgi
 

@@ -120,17 +120,15 @@ class HarvesterSerializer(BriefHarvesterSerializer):
         )
 
     def validate(self, data):
-        """Perform object-level validation
+        """
+        Perform object-level validation
 
         In this method we implement validation of the following:
 
         - Check that the worker configuration is valid for the current worker type.
-          This is done by validating the config against the worker's extra config
-          jsonschema (if it exists)
-        - Check that the client does not try to change the object's and worker config
-          at the same time, as that could lead to invalid internal state (for example,
-          if the worker config changes we need to regenerate the list of harvestable
-          resources before allowing a new harvesting session to take place).
+          This is done by validating the config against the worker's extra config jsonschema (if it exists)
+
+        - Check that the client does not try to change the object's and worker config at the same time, as that could lead to invalid internal state (for example, if the worker config changes we need to regenerate the list of harvestable resources before allowing a new harvesting session to take place).
 
         """
 
@@ -161,29 +159,22 @@ class HarvesterSerializer(BriefHarvesterSerializer):
         return super().create(validated_data)
 
     def update(self, instance: models.Harvester, validated_data):
-        """Update harvester and perform any required business logic as a side-effect.
+        """
+        Update harvester and perform any required business logic as a side-effect.
 
         Updating the harvester's `status` attribute triggers additional work:
 
-        - If `status` is set to
-          `models.Harvester.STATUS_UPDATING_HARVESTABLE_RESOURCES`, then we
-          proceed to refresh all harvestable resources related to the harvester
+        - If `status` is set to `models.Harvester.STATUS_UPDATING_HARVESTABLE_RESOURCES`, then we proceed to refresh all harvestable resources related to the harvester
 
-        - If `status` is set to `models.Harvester.STATUS_PERFORM_HARVESTING`
-          then we proceed by starting a new harvesting session
+        - If `status` is set to `models.Harvester.STATUS_PERFORM_HARVESTING` then we proceed by starting a new harvesting session
 
-        - If `status` is set to `models.Harvester.STATUS_CHECKING_AVAILABILITY`
-          then we proceed to check the availability of the remote service
+        - If `status` is set to `models.Harvester.STATUS_CHECKING_AVAILABILITY` then we proceed to check the availability of the remote service
 
-        Note that it is not possible for an API client to set a status of
-        `models.Harvester.STATUS_READY`. This status is set internally.
+        Note that it is not possible for an API client to set a status of `models.Harvester.STATUS_READY`. This status is set internally.
 
-        Additional work can also be triggered when a change to the harvester worker
-        configuration is requested. In that case GeoNode must regenerate the list of
-        harvestable resources.
+        Additional work can also be triggered when a change to the harvester worker configuration is requested. In that case GeoNode must regenerate the list of harvestable resources.
 
-        Also note that all of these additional work items are carried out
-        asynchronously via celery tasks.
+        Also note that all of these additional work items are carried out asynchronously via celery tasks.
 
         """
 
@@ -277,16 +268,12 @@ class HarvestableResourceSerializer(DynamicModelSerializer):
     # if so, then we need to discard existing harvestable_resources and check them again
 
     def to_internal_value(self, data):
-        """Verbatim copy of the original drf `to_internal_value()` method.
+        """
+        Verbatim copy of the original drf `to_internal_value()` method.
 
-        This method replicates the implementation found on
-        `restframework.serializers.Serializer.to_internal_value` method because the
-        dynamic-rest package (which we are using, and which overrides the base
-        implementation) adds some custom stuff on top of it which depends on the input
-        data containing the instance's `id` property, which we are not requiring.
+        This method replicates the implementation found on `restframework.serializers.Serializer.to_internal_value` method because the dynamic-rest package (which we are using, and which overrides the base implementation) adds some custom stuff on top of it which depends on the input data containing the instance's `id` property, which we are not requiring.
 
-        A HarvestableResource's `id` is an implementation detail that is not exposed
-        publicly. We rely on the instance's `unique_identifier` instead.
+        A HarvestableResource's `id` is an implementation detail that is not exposed publicly. We rely on the instance's `unique_identifier` instead.
 
         """
 

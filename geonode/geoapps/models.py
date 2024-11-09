@@ -32,8 +32,7 @@ logger = logging.getLogger("geonode.geoapps.models")
 
 class GeoApp(ResourceBase):
     """
-    A GeoApp it is a generic container for every client applications the
-    user might want to create or define.
+    A GeoApp it is a generic container for every client applications the user might want to create or define.
     """
 
     PERMISSIONS = {
@@ -62,9 +61,12 @@ class GeoApp(ResourceBase):
     @property
     def center(self):
         """
-        A handy shortcut for the center_x and center_y properties as a tuple
-        (read only)
+        .
+
+        A handy shortcut for the center_x and center_y properties as a tuple (read only)
+
         """
+
         return (self.center_x, self.center_y)
 
     @property
@@ -78,8 +80,11 @@ class GeoApp(ResourceBase):
     @property
     def is_public(self):
         """
+        .
+
         Returns True if anonymous (public) user can view geoapp.
         """
+
         user = get_anonymous_user()
         return user.has_perm("base.view_resourcebase", obj=self.resourcebase_ptr)
 

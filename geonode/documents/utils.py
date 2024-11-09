@@ -17,7 +17,8 @@
 #
 #########################################################################
 
-"""Utilities for managing GeoNode documents
+"""
+Utilities for managing GeoNode documents
 """
 
 # Standard Modules
@@ -45,6 +46,7 @@ def delete_orphaned_document_files():
     """
     Deletes orphaned files of deleted documents.
     """
+
     deleted = []
     _, files = storage_manager.listdir(os.path.join("documents", "document"))
 
@@ -62,9 +64,9 @@ def delete_orphaned_document_files():
 
 def get_download_response(request, docid, attachment=False):
     """
-    Returns a download response if user has access to download the document of a given id,
-    and an http response if they have no permissions to download it.
+    Returns a download response if user has access to download the document of a given id, and an http response if they have no permissions to download it.
     """
+
     document = get_object_or_404(Document, pk=docid)
 
     if not request.user.has_perm("base.download_resourcebase", obj=document.get_self_resource()):

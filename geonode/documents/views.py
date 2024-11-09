@@ -71,6 +71,7 @@ def _resolve_document(request, docid, permission="base.change_resourcebase", msg
     """
     Resolve the document by the provided primary key and check the optional permission.
     """
+
     return resolve_object(request, Document, {"pk": docid}, permission=permission, permission_msg=msg, **kwargs)
 
 
@@ -154,6 +155,7 @@ class DocumentUploadView(CreateView):
         """
         If the form is valid, save the associated model.
         """
+
         doc_form = form.cleaned_data
 
         file = doc_form.pop("doc_file", None)
@@ -272,6 +274,7 @@ class DocumentUpdateView(UpdateView):
         """
         If the form is valid, save the associated model.
         """
+
         doc_form = form.cleaned_data
 
         file = doc_form.pop("doc_file", None)

@@ -23,11 +23,12 @@ from . import models
 
 def get_favorite_info(user, content_object):
     """
-    return favorite info dict containing:
+    Return favorite info dict containing:
         a. an add favorite url for the input parameters.
         b. whether there is an existing Favorite for the input parameters.
         c. a delete url (if there is an existing Favorite).
     """
+
     result = {}
 
     url_content_type = type(content_object).__name__.lower()

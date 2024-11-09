@@ -47,7 +47,10 @@ class Command(BaseCommand):
     help = "Backup the GeoNode application data"
 
     def add_arguments(self, parser):
-        # Named (optional) arguments
+        """
+        Named (optional) arguments
+        """
+
         utils.option(parser)
 
         utils.geoserver_option_list(parser)
@@ -215,7 +218,10 @@ class Command(BaseCommand):
                 return str(os.path.join(backup_dir, f"{dir_time_suffix}.zip"))
 
     def create_geoserver_backup(self, config, settings, target_folder, ignore_errors):
-        # Create GeoServer Backup
+        """
+        Create GeoServer Backup
+        """
+
         url = settings.OGC_SERVER["default"]["LOCATION"]
         user = settings.OGC_SERVER["default"]["USER"]
         passwd = settings.OGC_SERVER["default"]["PASSWORD"]
@@ -361,12 +367,12 @@ class Command(BaseCommand):
                 )
 
     def dump_geoserver_externals(self, config, settings, target_folder):
-        """Scan layers xml and see if there are external references.
-
-        Find references to data outside data dir and include them in
-        backup. Also, some references may point to specific url, which
-        may not be available later.
         """
+        Scan layers xml and see if there are external references.
+
+        Find references to data outside data dir and include them in backup. Also, some references may point to specific url, which may not be available later.
+        """
+
         logger.info("*** Dumping GeoServer external resources")
 
         external_folder = os.path.join(target_folder, utils.EXTERNAL_ROOT)

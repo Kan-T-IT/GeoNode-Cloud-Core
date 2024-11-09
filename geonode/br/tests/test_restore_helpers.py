@@ -32,9 +32,12 @@ from geonode.br.management.commands.restore import Command as RestoreCommand
 
 
 class RestoreCommandHelpersTests(GeoNodeBaseTestSupport):
-    # validate_backup_file_hash
+    """
+    Validate_backup_file_hash
 
-    # validate_backup_file_options() method test
+    Validate_backup_file_options() method test
+    """
+
     def test_mandatory_option_failure(self):
         options = {}
 

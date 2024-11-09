@@ -240,10 +240,14 @@ def batch_modify(request, model):
 
 
 class SimpleSelect2View(autocomplete.Select2QuerySetView):
-    """Generic select2 view for autocompletes
-    Params:
-        model: model to perform the autocomplete query on
-        filter_arg: property to filter with ie. name__icontains
+    """
+    Generic select2 view for autocompletes.
+
+    :param model: The model to perform the autocomplete query on.
+    :type model: Model
+
+    :param filter_arg: The property to filter with (e.g., `name__icontains`).
+    :type filter_arg: str
     """
 
     def __init__(self, *args, **kwargs):
@@ -260,8 +264,8 @@ class SimpleSelect2View(autocomplete.Select2QuerySetView):
 
 
 class ResourceBaseAutocomplete(autocomplete.Select2QuerySetView):
-    """Base resource autocomplete - searches all the resources by title
-    returns any visible resources in this queryset for autocomplete
+    """
+    Base resource autocomplete - searches all the resources by title returns any visible resources in this queryset for autocomplete
     """
 
     def get_queryset(self):

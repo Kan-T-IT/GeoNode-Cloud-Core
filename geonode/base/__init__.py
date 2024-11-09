@@ -45,7 +45,8 @@ def register_url_event(event_type=None):
     Decorator on views, which will register url event
 
     usage:
-    >> register_url_event()(TemplateView.view_as_view())
+
+    >>> register_url_event()(TemplateView.view_as_view())
 
     """
 
@@ -66,9 +67,9 @@ def register_event(request, event_type, resource):
     """
     Wrapper function to be used inside views to collect event and resource
 
-    @param request Request object
-    @param event_type name of event type
-    @param resource string (then resource type will be url) or Resource instance
+    :param request: Request object
+    :param event_type: name of event type
+    :param resource: string (then resource type will be url) or Resource instance
 
     >>> from geonode.base import register_event
     >>> def view(request):

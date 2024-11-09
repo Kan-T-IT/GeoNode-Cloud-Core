@@ -36,7 +36,8 @@ logger = logging.getLogger(__name__)
 
 
 def on_ogc_backend(backend_package):
-    """Decorator for function specific to a certain ogc backend.
+    """
+    Decorator for function specific to a certain ogc backend.
 
     This decorator will wrap function so it only gets executed if the
     specified ogc backend is currently used. If not, the function will just
@@ -65,6 +66,7 @@ def view_or_basicauth(view, request, test_func, realm="", *args, **kwargs):
     are already logged in or if they have provided proper http-authorization
     and returning the view if all goes well, otherwise responding with a 401.
     """
+
     if test_func(request.user):
         # Already logged in, just return the view.
         #
@@ -163,7 +165,7 @@ def has_perm_or_basicauth(perm, realm=""):
 
     @logged_in_or_basicauth('asforums.view_forumcollection')
     def your_view:
-        ...
+    ...
 
     """
 
@@ -178,22 +180,25 @@ def has_perm_or_basicauth(perm, realm=""):
 
 def superuser_only(function):
     """
-    Limit view to superusers only.
+    Restricts access to the view for superusers only.
 
-    Usage:
-    --------------------------------------------------------------------------
-    @superuser_only
-    def my_view(request):
-        ...
-    --------------------------------------------------------------------------
+    **Usage:**
 
-    or in urls:
+    To restrict a view to superusers, use the `@superuser_only` decorator as follows:
 
-    --------------------------------------------------------------------------
-    urlpatterns = patterns('',
-        (r'^foobar/(.*)', is_staff(my_view)),
-    )
-    --------------------------------------------------------------------------
+    .. code-block:: python
+
+        @superuser_only
+        def my_view(request):
+            ...
+
+    Or use it in URL patterns:
+
+    .. code-block:: python
+
+        urlpatterns = [
+            path('foobar/<str:param>', superuser_only(my_view)),
+        ]
     """
 
     def _inner(request, *args, **kwargs):
@@ -220,7 +225,9 @@ def check_keyword_write_perms(function):
 
 
 def superuser_protected(function):
-    """Decorator that forces a view to be accessible by SUPERUSERS only."""
+    """
+    Decorator that forces a view to be accessible by SUPERUSERS only.
+    """
 
     def _inner(request, *args, **kwargs):
         if not auth.get_user(request).is_superuser:
@@ -233,8 +240,8 @@ def superuser_protected(function):
 
 
 def whitelist_protected(function):
-    """Decorator that forces a view to be accessible by WHITE_LISTED
-    IPs only.
+    """
+    Decorator that forces a view to be accessible by WHITE_LISTED IPs only.
     """
 
     def _inner(request, *args, **kwargs):
@@ -273,9 +280,11 @@ def logged_in_or_basicauth(realm=""):
 
     Use is simple:
 
-    @logged_in_or_basicauth()
-    def your_view:
-        ...
+     .. code-block:: python
+
+        @logged_in_or_basicauth()
+        def your_view:
+            ...
 
     You can provide the name of the realm to ask for authentication within.
     """

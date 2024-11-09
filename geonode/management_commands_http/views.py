@@ -77,14 +77,20 @@ class ManagementCommandView(views.APIView, CreateJobMixin):
     def post(self, request, cmd_name=None):
         """
         Creates and runs a management command job.
-        Expects application/json content type in a following shape:
-        {
-            "args": [<arg1>, <arg2>],
-            "kwargs: {<key1>: <val1>, <key2>: <val2>},
-            "autostart": bool
-        }
+
+        Expects application/json content type in the following shape:
+
+        .. code-block:: json
+
+            {
+                "args": ["<arg1>", "<arg2>"],
+                "kwargs": {"<key1": "<val1>", "<key2>": "<val2>"},
+                "autostart": true
+            }
+
         By default, autostart is set to true.
         """
+
         return self.create(request)
 
     def get_serializer(self, *args, **kwargs):

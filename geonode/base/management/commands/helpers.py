@@ -24,11 +24,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
 
 def confirm(prompt=None, resp=False):
-    """prompts for yes or no response from the user. Returns True for yes and
-    False for no.
+    """
+    Prompts the user for a yes or no response. Returns True for ``yes`` and False for ``no``.
 
-    'resp' should be set to the default value assumed by the caller when
-    user simply types ENTER.
+    ``resp`` should be set to the default value expected by the caller when the user presses ENTER without providing an input.
 
     >>> confirm(prompt='Create Directory?', resp=True)
     Create Directory? [y]|n:

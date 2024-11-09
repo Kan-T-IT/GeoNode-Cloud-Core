@@ -17,7 +17,9 @@ class ACLException(Exception):
 
 
 class Rule(ACLRule):
-    """ Rule class inherited from gsauth_client.models.Rule but with some additional methods for Geofence format compatibility"""
+    """
+    Rule class inherited from gsauth_client.models.Rule but with some additional methods for Geofence format compatibility
+    """
 
     ALLOW = "ALLOW"
     DENY = "DENY"
@@ -73,76 +75,80 @@ class Rule(ACLRule):
 #         return super().__str__()
 
 class Batch:
-    """_summary_
+    """
+    _summary_
     A ACL Batch.
     It's a list of operations that will be executed transactionally inside ACL (?).
 
-    e.g.:
-    {
-      "Batch": {
-         "operations": [
-            {
-                "@service": "rules",
-                "@type": "insert",
-                "Rule": {
-                    "priority": 0,
-                    "user": "admin",
-                    "service": "WMS",
-                    "workspace": "geonode",
-                    "layer": "san_andres_y_providencia_administrative",
-                    "access": "ALLOW"
-                }
-            },
-            {
-                "@service": "rules",
-                "@type": "insert",
-                "Rule": {
-                    "priority": 1,
-                    "user": "admin",
-                    "service": "GWC",
-                    "workspace": "geonode",
-                    "layer": "san_andres_y_providencia_administrative",
-                    "access": "ALLOW"
-                }
-            },
-            {
-                "@service": "rules",
-                "@type": "insert",
-                "Rule": {
-                    "priority": 2,
-                    "user": "admin",
-                    "service": "WFS",
-                    "workspace": "geonode",
-                    "layer": "san_andres_y_providencia_administrative",
-                    "access": "ALLOW"
-                }
-            },
-            {
-                "@service": "rules",
-                "@type": "insert",
-                "Rule": {
-                    "priority": 3,
-                    "user": "admin",
-                    "service": "WPS",
-                    "workspace": "geonode",
-                    "layer": "san_andres_y_providencia_administrative",
-                    "access": "ALLOW"
-                }
-            },
-            {
-                "@service": "rules",
-                "@type": "insert",
-                "Rule": {
-                    "priority": 4,
-                    "user": "admin",
-                    "workspace": "geonode",
-                    "layer": "san_andres_y_providencia_administrative",
-                    "access": "ALLOW"
-                }
+    **Example**:
+
+    .. code-block:: json
+
+        {
+        "Batch": {
+            "operations": [
+                {
+                    "@service": "rules",
+                    "@type": "insert",
+                    "Rule": {
+                        "priority": 0,
+                        "user": "admin",
+                        "service": "WMS",
+                        "workspace": "geonode",
+                        "layer": "san_andres_y_providencia_administrative",
+                        "access": "ALLOW"
+                    }
+                },
+                {
+                    "@service": "rules",
+                    "@type": "insert",
+                    "Rule": {
+                        "priority": 1,
+                        "user": "admin",
+                        "service": "GWC",
+                        "workspace": "geonode",
+                        "layer": "san_andres_y_providencia_administrative",
+                        "access": "ALLOW"
+                    }
+                },
+                {
+                    "@service": "rules",
+                    "@type": "insert",
+                    "Rule": {
+                        "priority": 2,
+                        "user": "admin",
+                        "service": "WFS",
+                        "workspace": "geonode",
+                        "layer": "san_andres_y_providencia_administrative",
+                        "access": "ALLOW"
+                    }
+                },
+                {
+                    "@service": "rules",
+                    "@type": "insert",
+                    "Rule": {
+                        "priority": 3,
+                        "user": "admin",
+                        "service": "WPS",
+                        "workspace": "geonode",
+                        "layer": "san_andres_y_providencia_administrative",
+                        "access": "ALLOW"
+                    }
+                },
+                {
+                    "@service": "rules",
+                    "@type": "insert",
+                    "Rule": {
+                        "priority": 4,
+                        "user": "admin",
+                        "workspace": "geonode",
+                        "layer": "san_andres_y_providencia_administrative",
+                        "access": "ALLOW"
+                        }
+                    }
+                ]
             }
-        ]
-      }
-    }
+        }
 
     Returns:
         _type_: Batch

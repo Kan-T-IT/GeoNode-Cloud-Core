@@ -114,7 +114,10 @@ class Catalogue(CatalogueServiceWeb):
         return f"{self.url}?{_query_string}"
 
     def urls_for_uuid(self, uuid):
-        """returns list of valid GetRecordById URLs for a given record"""
+        """
+        Returns list of valid GetRecordById URLs for a given record
+        """
+
         urls = []
         for mformat in self.formats:
             urls.append(("text/xml", mformat, self.url_for_uuid(uuid, METADATA_FORMATS[mformat][1])))
@@ -137,7 +140,10 @@ class Catalogue(CatalogueServiceWeb):
         return md_doc
 
     def csw_gen_anytext(self, xml):
-        """get all element data from an XML document"""
+        """
+        Get all element data from an XML document
+        """
+
         xml = dlxml.fromstring(xml)
         return " ".join([value.strip() for value in xml.xpath("//text()")])
 
@@ -161,7 +167,10 @@ class Catalogue(CatalogueServiceWeb):
         # TODO: Parse response, check for error report
 
     def search(self, keywords, startposition, maxrecords, bbox):
-        """CSW search wrapper"""
+        """
+        CSW search wrapper
+        """
+
         formats = []
         for f in self.formats:
             formats.append(METADATA_FORMATS[f][0])
@@ -187,9 +196,7 @@ class Catalogue(CatalogueServiceWeb):
 
     def metadatarecord2dict(self, rec):
         """
-        accepts a node representing a catalogue result
-        record and builds a POD structure representing
-        the search result.
+        Accepts a node representing a catalogue result record and builds a POD structure representing the search result.
         """
 
         if rec is None:

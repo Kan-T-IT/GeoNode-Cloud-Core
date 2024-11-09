@@ -48,12 +48,18 @@ logger = logging.getLogger(__name__)
 
 
 def option(parser):
-    # Named (optional) arguments
+    """
+    Named (optional) arguments
+    """
+
     parser.add_argument("-c", "--config", help="Use custom settings.ini configuration file")
 
 
 def geoserver_option_list(parser):
-    # Named (optional) arguments
+    """
+    Named (optional) arguments
+    """
+
     parser.add_argument("--geoserver-data-dir", dest="gs_data_dir", default=None, help="Geoserver data directory")
 
     parser.add_argument(
@@ -164,7 +170,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 
 
 def get_db_conn(db_name, db_user, db_port, db_host, db_passwd):
-    """Get db conn (GeoNode)"""
+    """
+    Get db conn (GeoNode)
+    """
+
     db_host = db_host if db_host is not None else "localhost"
     db_port = db_port if db_port is not None else 5432
     conn = psycopg2.connect(
@@ -194,7 +203,10 @@ def get_tables(db_user, db_passwd, db_name, db_host="localhost", db_port=5432):
 
 
 def truncate_tables(db_name, db_user, db_port, db_host, db_passwd):
-    """HARD Truncate all DB Tables"""
+    """
+    HARD Truncate all DB Tables
+    """
+
     db_host = db_host if db_host is not None else "localhost"
     db_port = db_port if db_port is not None else 5432
 
@@ -227,7 +239,10 @@ def truncate_tables(db_name, db_user, db_port, db_host, db_passwd):
 
 
 def dump_db(config, db_name, db_user, db_port, db_host, db_passwd, target_folder):
-    """Dump Full DB into target folder"""
+    """
+    Dump Full DB into target folder
+    """
+
     db_host = db_host if db_host is not None else "localhost"
     db_port = db_port if db_port is not None else 5432
 
@@ -269,7 +284,10 @@ def dump_db(config, db_name, db_user, db_port, db_host, db_passwd, target_folder
 
 
 def restore_db(config, db_name, db_user, db_port, db_host, db_passwd, source_folder, preserve_tables):
-    """Restore Full DB into target folder"""
+    """
+    Restore Full DB into target folder
+    """
+
     db_host = db_host if db_host is not None else "localhost"
     db_port = db_port if db_port is not None else 5432
 
@@ -339,10 +357,10 @@ def remove_existing_tables(db_name, db_user, db_port, db_host, db_passwd):
 
 
 def confirm(prompt=None, resp=False):
-    """prompts for yes or no response from the user. Returns True for yes and
-    False for no.
+    """
+    Prompts for yes or no response from the user. Returns True for yes and False for no.
 
-    'resp' should be set to the default value assumed by the caller when
+    ``resp`` should be set to the default value assumed by the caller when
     user simply types ENTER.
 
     >>> confirm(prompt='Create Directory?', resp=True)
@@ -384,6 +402,7 @@ def md5_file_hash(file_path):
     :param file_path: file's path with an extension, which will be opened for reading and generating md5 hash
     :return: hex representation of md5 hash
     """
+
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -411,7 +430,8 @@ def ignore_time(cmp_operator, iso_date):
 
 
 def glob2re(pat):
-    """Translate a shell PATTERN to a regular expression.
+    """
+    Translate a shell PATTERN to a regular expression.
 
     There is no way to quote meta-characters.
     """

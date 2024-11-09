@@ -43,26 +43,34 @@ BASE64_PATTERN = "data:image/(jpeg|png|jpg);base64"
 
 def make_bbox_to_pixels_transf(src_bbox: Union[List, Tuple], dest_bbox: Union[List, Tuple]) -> Callable:
     """
-    Linear transformation of bbox between CRS and pixel values:
+    Linear transformation of a bounding box (BBOX) from a Coordinate Reference System (CRS) to pixel values.
 
-    (xmin, ymax)          (xmax, ymax)                      (0, 0)          (width, 0)
-         -------------------                                     -------------------
-        |  x                |                                   |    | y'           |
-        |----* (x, y)       |               ->                  |----* (x', y')     |
-        |    | y            |                                   |  x'               |
-         -------------------                                     -------------------
-    (xmin, ymin)          (xmin, ymax)                      (0, height)    (width, height)
+        .. code-block:: text
 
-    based on linear proportions:
-              x - xmin      x'                        y - ymin    height - y'
-            ----------- = -----                     ----------- = -----------
-            xmax - xmin   width                     ymax - ymin      height
+            (xmin, ymax)         (xmax, ymax)                     (0, 0)          (width, 0)
+                ------------------                                    ------------------
+                |  x               |                                  |   | y'          |
+                |----* (x, y)      |              ->                  |----* (x', y')   |
+                |    | y           |                                  | x'              |
+                ------------------                                    ------------------
+            (xmin, ymin)         (xmax, ymin)                     (0, height)   (width, height)
 
-    Note: Y axis have opposite directions
+    Transformation based on linear proportions:
 
-    :param src_bbox: image's BBOX in a certain CRS, in (xmin, ymin, xmax, ymax) order
-    :param dest_bbox: image's BBOX in pixels: (0,0,PIL.Image().size[0], PIL.Image().size[1])
-    :return: function translating X, Y coordinates in CRS to (x, y) coordinates in pixels
+        .. code-block:: text
+
+            (x - xmin)        x'                         (y - ymin)      (height - y')
+            ------------ = -------                    ------------ = ----------------
+            (xmax - xmin)   width                     (ymax - ymin)        height
+
+    .. note:: The Y axis directions are opposite between the CRS and pixel coordinates.
+
+    :param src_bbox: The BBOX of the image in a specific CRS, in the form (xmin, ymin, xmax, ymax).
+    :type src_bbox: Union[List, Tuple]
+    :param dest_bbox: The BBOX of the image in pixels, in the form (0, 0, width, height).
+    :type dest_bbox: Union[List, Tuple]
+    :return: A function to translate X, Y coordinates from the CRS to pixel coordinates (x, y).
+    :rtype: Callable
     """
 
     return lambda x, y: (
@@ -346,10 +354,10 @@ def getmap(
         layers list.
     srs : string
         A spatial reference system identifier.
-        Note: this is an invalid query parameter key for 1.3.0 but is being
-                retained for standardization with 1.1.1.
-        Note: throws exception if the spatial ref is ESRI's "no reference"
-                code (EPSG:0)
+
+        .. note:: This is an invalid query parameter key for 1.3.0 but is being retained for standardization with 1.1.1.
+
+        .. note:: Throws an exception if the spatial reference is ESRI's "no reference" code (EPSG:0).
     bbox : tuple
         (left, bottom, right, top) in srs units (note, this order does not
             change depending on axis order of the crs).

@@ -246,17 +246,24 @@ def _datasets_locations(
     Function returning a list mapping instance's datasets to their locations, enabling to construct a minimum
     number of  WMS request for multiple datasets of the same OGC source (ensuring datasets order for Maps)
 
-    :param instance: instance of Dataset or Map models
-    :param compute_bbox: flag determining whether a BBOX containing the instance should be computed,
-                         based on instance's datasets
+    :param instance: Instance of Dataset or Map models
+    :param compute_bbox: flag determining whether a BBOX containing the instance should be computed, based on instance's datasets
     :param target_crs: valid only when compute_bbox is True - CRS of the returned BBOX
-    :return: a tuple with a list, which maps datasets to their locations in a correct datasets order
-             e.g.
-                [
-                    ["http://localhost:8080/geoserver/": ["geonode:layer1", "geonode:layer2]]
-                ]
-             and a list optionally consisting of 5 elements containing west, east, south, north
-             instance's boundaries and CRS
+    :return: A tuple containing:
+
+         - A list that maps datasets to their locations, preserving the correct order of datasets.
+         - Optionally, a list with five elements representing the west, east, south, north boundaries of the instance
+           and the CRS, if `compute_bbox` is True.
+
+    Example:
+
+    .. code-block:: json
+
+        [
+            {
+                "http://localhost:8080/geoserver/": ["geonode:layer1", "geonode:layer2"]
+            }
+        ]
     """
     locations = []
     bbox = []

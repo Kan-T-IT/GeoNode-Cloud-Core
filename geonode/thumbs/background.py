@@ -52,6 +52,7 @@ class BaseThumbBackground(ABC):
         :param max_retries: maximum number of retrieval retries before raising an exception
         :param retry_delay: number of seconds waited between consecutive retrieval retries
         """
+
         self.thumbnail_width = thumbnail_width
         self.thumbnail_height = thumbnail_height
         self.max_retries = max_retries
@@ -123,8 +124,8 @@ class GenericWMSBackground(BaseThumbBackground):
         On error should raise an exception or return None.
 
         :param bbox: a dataset compliant BBOX: [west, east, south, north, CRS]
-        :param *args: not used, kept for API compatibility
-        :param **kargs: not used, kept for API compatibility
+        :param *args*: not used, kept for API compatibility
+        :param **kargs**: not used, kept for API compatibility
         """
 
         if not self.service_url or not self.dataset_name:
@@ -228,9 +229,7 @@ class GenericXYZBackground(BaseThumbBackground):
 
     def fetch(self, bbox: typing.List, zoom: int = None, *args, **kwargs):
         """
-        The function fetching tiles from a Slippy Map provider, composing them into a single image, and cropping it
-        to match the given BBOX. Retrieval of each tile is repeated self.max_retries times, waiting self.retry_delay
-        seconds between consecutive requests.
+        The function fetching tiles from a Slippy Map provider, composing them into a single image, and cropping it to match the given BBOX. Retrieval of each tile is repeated self.max_retries times, waiting self.retry_delay seconds between consecutive requests.
 
         :param bbox: bounding box of the background image, dataset compliant format: [west, east, south, north, CRS]
         :param zoom: zoom with which to retrieve Slippy Map's tiles (by default, it's calculated based on width, height)
