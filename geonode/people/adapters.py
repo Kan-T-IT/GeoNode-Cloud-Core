@@ -17,10 +17,10 @@
 #
 #########################################################################
 
-"""Custom account adapters for django-allauth.
+"""
+Custom account adapters for django-allauth.
 
-These are used in order to extend the default authorization provided by
-django-allauth.
+These are used in order to extend the default authorization provided by django-allauth.
 
 """
 
@@ -50,10 +50,10 @@ logger = logging.getLogger(__name__)
 
 
 def get_data_extractor(provider_id):
-    """Get the relevant profile extractor instance for the provider
+    """
+    Get the relevant profile extractor instance for the provider
 
-    Retrieve the data extractor instance to use for getting profile
-    information from social account providers.
+    Retrieve the data extractor instance to use for getting profile information from social account providers.
 
     """
 
@@ -80,7 +80,10 @@ def get_group_role_mapper(provider_id):
 
 
 def update_profile(sociallogin):
-    """Update a people.models.Profile object with info from the sociallogin"""
+    """
+    Update a people.models.Profile object with info from the sociallogin
+    """
+
     user = sociallogin.user
     extractor = get_data_extractor(sociallogin.account.provider)
     if extractor is not None:
@@ -112,12 +115,14 @@ def update_profile(sociallogin):
 
 
 class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
-    """Customizations for local accounts
+    """
+    Customizations for local accounts
 
     Check `django-allauth's documentation`_ for more details on this class.
 
     .. _django-allauth's documentation:
-       http://django-allauth.readthedocs.io/en/latest/advanced.html#creating-and-populating-user-instances
+
+       https://django-allauth.readthedocs.io/en/latest/socialaccount/advanced.html#creating-and-populating-user-instances
 
     """
 
@@ -188,12 +193,10 @@ class LocalAccountAdapter(DefaultAccountAdapter, BaseInvitationsAdapter):
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
-    """Customizations for social accounts
+    """
+    Customizations for social accounts
 
     Check `django-allauth's documentation`_ for more details on this class.
-
-    .. _django-allauth's documentation:
-         http //django-allauth.readthedocs.io/en/latest/advanced.html#creating-and-populating-user-instances
 
     """
 
@@ -201,7 +204,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         return _site_allows_signup(request)
 
     def populate_user(self, request, sociallogin, data):
-        """This method is called when a new sociallogin is created"""
+        """
+        This method is called when a new sociallogin is created
+        """
+
         user = super().populate_user(request, sociallogin, data)
         update_profile(sociallogin)
         return user

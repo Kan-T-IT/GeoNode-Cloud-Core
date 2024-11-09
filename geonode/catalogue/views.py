@@ -39,7 +39,9 @@ from geonode.people import Roles
 
 @csrf_exempt
 def csw_global_dispatch(request, dataset_filter=None, config_updater=None):
-    """pycsw wrapper"""
+    """
+    pycsw wrapper
+    """
 
     # this view should only operate if pycsw_local is the backend
     # else, redirect to the URL of the non-pycsw_local backend
@@ -161,7 +163,9 @@ def csw_global_dispatch(request, dataset_filter=None, config_updater=None):
 
 @csrf_exempt
 def opensearch_dispatch(request):
-    """OpenSearch wrapper"""
+    """
+    OpenSearch wrapper
+    """
 
     ctx = {
         "shortname": settings.PYCSW["CONFIGURATION"]["metadata:main"]["identification_title"],
@@ -183,7 +187,10 @@ def opensearch_dispatch(request):
 
 # transforms a row sql query into a two dimension array
 def dictfetchall(cursor):
-    """Generate all rows from a cursor as a dict"""
+    """
+    Generate all rows from a cursor as a dict
+    """
+
     for row in cursor.fetchall():
         yield {col[0]: row for col in cursor.description}
 
@@ -227,7 +234,10 @@ def get_keywords(resource):
 # containing the whole geonode metadata
 @csrf_exempt
 def csw_render_extra_format_txt(request, layeruuid, resname):
-    """pycsw wrapper"""
+    """
+    pycsw wrapper
+    """
+
     resource = ResourceBase.objects.get(uuid=layeruuid)
     chrs = get_CSV_spec_char()
     s = chrs["separator"]

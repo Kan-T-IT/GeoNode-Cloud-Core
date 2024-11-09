@@ -58,7 +58,10 @@ class CatalogueTest(GeoNodeBaseTestSupport):
         self.passwd = "admin"
 
     def test_get_catalog(self):
-        """Tests the get_catalogue function works."""
+        """
+        Tests the get_catalogue function works.
+        """
+
         c = get_catalogue()
         self.assertIsNotNone(c)
 

@@ -50,6 +50,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         Ensure we can access the Documents list.
         """
+
         url = reverse("documents-list")
         # Anonymous
         response = self.client.get(url, format="json")
@@ -91,6 +92,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         payload = {"document": {"title": "New document", "metadata_only": True}}
         expected = {
@@ -106,6 +108,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         payload = {"document": {"title": "New document", "metadata_only": True, "file_path": None, "doc_file": None}}
         expected = {
@@ -133,6 +136,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         payload = {
             "document": {"title": "New document for testing", "metadata_only": True, "file_path": self.valid_file_path}
@@ -449,6 +453,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         payload = {
             "document": {
@@ -475,9 +480,9 @@ class DocumentsApiTests(APITransactionTestCase):
 
     def test_file_path_and_doc_path_are_not_returned(self):
         """
-        If file_path and doc_path should not be visible
-        from the GET payload
+        If file_path and doc_path should not be visible from the GET payload
         """
+
         actual = self.client.get(self.url)
         self.assertEqual(200, actual.status_code)
         _doc_payload = actual.json().get("document", {})
@@ -488,6 +493,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         doc_url = "https://example.com/image"
         payload = {
@@ -504,7 +510,10 @@ class DocumentsApiTests(APITransactionTestCase):
         self.assertEqual(created_doc_url, doc_url)
 
     def test_remote_document_is_marked_remote(self):
-        """Tests creating an external document set its sourcetype to REMOTE."""
+        """
+        Tests creating an external document set its sourcetype to REMOTE.
+        """
+
         self.client.force_login(self.admin)
         doc_url = "https://example.com/image"
         payload = {
@@ -523,6 +532,7 @@ class DocumentsApiTests(APITransactionTestCase):
         """
         If file_path is not available, should raise error
         """
+
         self.client.force_login(self.admin)
         doc_url = "https://example.com/image"
         payload = {

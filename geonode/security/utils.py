@@ -121,6 +121,7 @@ def get_users_with_perms(obj):
     """
     Override of the Guardian get_users_with_perms
     """
+
     ctype = ContentType.objects.get_for_model(obj)
     ctype_resource_base = ContentType.objects.get_for_model(obj.get_self_resource())
     permissions = {}
@@ -172,6 +173,7 @@ def get_resources_with_perms(user, filter_options={}, shortcut_kwargs={}):
     """
     Returns resources a user has access to.
     """
+
     from geonode.base.models import ResourceBase
 
     if settings.SKIP_PERMS_FILTER:
@@ -211,8 +213,9 @@ def get_resources_with_perms(user, filter_options={}, shortcut_kwargs={}):
 def get_geoapp_subtypes():
     """
     Returns a list of geoapp subtypes.
-    eg ['geostory']
+    Example ['geostory']
     """
+
     from geonode.geoapps.models import GeoApp
 
     if not globals().get("geoapp_subtypes"):
@@ -240,9 +243,11 @@ def get_user_groups(owner, group=None):
 def get_user_visible_groups(user, include_public_invite: bool = False):
     """
     Retrieves all the groups accordingly to the following conditions:
+
     - The user is member of
     - The group is public
     """
+
     from geonode.groups.models import GroupProfile
 
     metadata_author_groups = []
@@ -303,10 +308,12 @@ class AdvancedSecurityWorkflowManager:
           - `ADMIN_MODERATE_UPLOADS = False`
 
           - When user creates a resource:
+
             - OWNER gets all the owner permissions (publish resource included)
             - ANONYMOUS can view and download
           - No change to the Group Manager is applied
         """
+
         return not settings.RESOURCE_PUBLISHING and not settings.ADMIN_MODERATE_UPLOADS
 
     @staticmethod
@@ -317,16 +324,19 @@ class AdvancedSecurityWorkflowManager:
           - `ADMIN_MODERATE_UPLOADS = False`
 
           - When user creates a resource:
+
             - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` INCLUDED)
             - Group MANAGERS of the user's groups will get the owner permissions (`publish_resource` EXCLUDED)
             - Group MEMBERS of the user's groups will get the `view_resourcebase`, `download_resourcebase` permission
             - ANONYMOUS can not view and download if the resource is not published
 
           - When resource has a group assigned:
+
             - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` INCLUDED)
             - Group MANAGERS of the *resource's group* will get the owner permissions (`publish_resource` EXCLUDED)
             - Group MEMBERS of the *resource's group* will get the `view_resourcebase`, `download_resourcebase` permission
         """
+
         return settings.RESOURCE_PUBLISHING and not settings.ADMIN_MODERATE_UPLOADS
 
     @staticmethod
@@ -337,34 +347,42 @@ class AdvancedSecurityWorkflowManager:
           - `ADMIN_MODERATE_UPLOADS = True`
 
           - When user creates a resource:
+
             - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` EXCLUDED)
             - Group MANAGERS of the user's groups will get the owner permissions (`publish_resource` INCLUDED)
             - Group MEMBERS of the user's groups will get the `view_resourcebase`, `download_resourcebase` permission
             - ANONYMOUS can not view and download if the resource is not published
 
           - When resource has a group assigned:
+
             - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` EXCLUDED)
             - Group MANAGERS of the resource's group will get the owner permissions (`publish_resource` INCLUDED)
             - Group MEMBERS of the resource's group will get the `view_resourcebase`, `download_resourcebase` permission
         """
+
         return settings.RESOURCE_PUBLISHING and settings.ADMIN_MODERATE_UPLOADS
 
     @staticmethod
     def is_simplified_workflow():
         """
         **SIMPLIFIED WORKFLOW**
-          - `RESOURCE_PUBLISHING = False`
-          - `ADMIN_MODERATE_UPLOADS = True`
 
-          - **NOTE**: Is it even possibile? when the resource is automatically published, can it be un-published?
-          If this combination is not allowed, we should either stop the process when reading the settings or log a warning and force a safe combination.
+            - `RESOURCE_PUBLISHING = False`
+            - `ADMIN_MODERATE_UPLOADS = True`
 
-          - When user creates a resource:
-            - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` INCLUDED)
-            - Group MANAGERS of the user's groups will get the owner permissions (`publish_resource` INCLUDED)
-            - Group MEMBERS of the user's group will get the `view_resourcebase`, `download_resourcebase` permission
-            - ANONYMOUS can view and download
+                .. note::
+                    Is it even possibile? when the resource is automatically published, can it be un-published?
+
+                    If this combination is not allowed, we should either stop the process when reading the settings or log a warning and force a safe combination.
+
+            - When user creates a resource:
+
+                - OWNER gets all the owner permissions (`publish_resource` and `change_resourcebase_permissions` INCLUDED)
+                - Group MANAGERS of the user's groups will get the owner permissions (`publish_resource` INCLUDED)
+                - Group MEMBERS of the user's group will get the `view_resourcebase`, `download_resourcebase` permission
+                - ANONYMOUS can view and download
         """
+
         return not settings.RESOURCE_PUBLISHING and settings.ADMIN_MODERATE_UPLOADS
 
     @staticmethod
@@ -424,10 +442,12 @@ class AdvancedSecurityWorkflowManager:
     @staticmethod
     def compute_admin_and_view_permissions_set(uuid: str, /, instance=None) -> AdminViewPermissionsSet:
         """
-        returns a copy of the ADMIN_PERMISSIONS and VIEW_PERMISISONS of a resource accordinlgy to:
-         - The resource_type
-         - The resource_subtype
+        Returns a copy of the ADMIN_PERMISSIONS and VIEW_PERMISISONS of a resource accordinlgy to:
+
+        - The resource_type
+        - The resource_subtype
         """
+
         _resource = instance or AdvancedSecurityWorkflowManager.get_instance(uuid)
         view_perms = []
         admin_perms = []
@@ -453,13 +473,15 @@ class AdvancedSecurityWorkflowManager:
     @staticmethod
     def compute_resource_groups_and_members_set(uuid: str, /, instance=None, group=None) -> ResourceGroupsAndMembersSet:
         """
-        returns a tuple containing:
+        Returns a tuple containing:
+
          - The "Anonymous" Group
          - The "Registered Members" Group
          - The "Groups" belonging to the Resource Owner
          - The "managers" of the Groups affecting the Resource
          - The "members" of the Groups affecting the Resource
         """
+
         _resource = instance or AdvancedSecurityWorkflowManager.get_instance(uuid)
         anonymous_group = Group.objects.get(name="anonymous")
         registered_members_group = None
@@ -484,30 +506,46 @@ class AdvancedSecurityWorkflowManager:
         group_status_changed: bool = False,
     ) -> dict:
         """
-        Adapts the provided "perm_spec" accordingly to the following schema:
-                                | RESOURCE_PUBLISHING | ADMIN_MODERATE_UPLOADS
-          --------------------------------------------------------------------
-            AUTO PUBLISH        |          X          |           X
-            SIMPLE PUBLISHING   |          V          |           X
-            SIMPLIFIED WORKFLOW |          X          |           V
-            ADVANCED WORKFLOW   |          V          |           V
+        Adapts the provided "perm_spec" according to the following schema:
 
-        General Rules:
-         - OWNER can never publish, except in the AUTO_PUBLISHING workflow
-         - MANAGERS can always "publish" the resource
-         - MEMBERS can always "view" and "download" the resource
-         - When the OWNER is also a MANAGER, the MANAGER wins! Therefore he can publish too
-         - Others, except in the AUTO_PUBLISHING workflow
+        **Publishing Workflow Schema**
 
-                              |  N/PUBLISHED   | PUBLISHED
-            ----------------------------------------------
-                N/APPROVED    |     GM/OWR     |     -
-                APPROVED      |   registerd    |    all
-            ----------------------------------------------
-          - There are few exceptions accordingly to the enabled workflow
-            * SIMPLIFIED WORKFLOW: If the resource will be "approved" or "published" the OWNERS won't be able change the resource data and perms
-            * ADVANCED WORKFLOW: If the resource will be "approved" or "published" the OWNERS won't be able change the resource data, metadata and perms
+        +---------------------+-----------------------+-------------------------+
+        |                     | RESOURCE_PUBLISHING   | ADMIN_MODERATE_UPLOADS  |
+        +---------------------+-----------------------+-------------------------+
+        | AUTO PUBLISH        |          X            |           X             |
+        +---------------------+-----------------------+-------------------------+
+        | SIMPLE PUBLISHING   |          ✓            |           X             |
+        +---------------------+-----------------------+-------------------------+
+        | SIMPLIFIED WORKFLOW |          X            |           ✓             |
+        +---------------------+-----------------------+-------------------------+
+        | ADVANCED WORKFLOW   |          ✓            |           ✓             |
+        +---------------------+-----------------------+-------------------------+
+
+        **General Rules:**
+
+        - **OWNER** can never publish, except in the **AUTO_PUBLISHING** workflow.
+        - **MANAGERS** can always "publish" the resource.
+        - **MEMBERS** can always "view" and "download" the resource.
+        - When the OWNER is also a MANAGER, the MANAGER wins and can publish.
+        - Others, except in the AUTO_PUBLISHING workflow.
+
+        **Approval and Publishing Schema**
+
+        +----------------+--------------+-------------+
+        |                | N/PUBLISHED  | PUBLISHED   |
+        +----------------+--------------+-------------+
+        | N/APPROVED     | GM/OWR       | -           |
+        +----------------+--------------+-------------+
+        | APPROVED       | registered   | all         |
+        +----------------+--------------+-------------+
+
+        Exceptions based on the enabled workflow:
+
+        - **SIMPLIFIED WORKFLOW**: If the resource is "approved" or "published", OWNERS won't be able to change the resource data and permissions.
+        - **ADVANCED WORKFLOW**: If the resource is "approved" or "published", OWNERS won't be able to change the resource data, metadata, and permissions.
         """
+
         _resource = instance or AdvancedSecurityWorkflowManager.get_instance(uuid)
         _perm_spec = copy.deepcopy(perm_spec)
 

@@ -32,8 +32,10 @@ from geonode.utils import check_ogc_backend
 
 
 class GeoNodeAuthorization(DjangoAuthorization):
-    """Object level API authorization based on GeoNode granular
-    permission system"""
+    """
+    Object level API authorization based on GeoNode granular
+    permission system
+    """
 
     def read_list(self, object_list, bundle):
         permitted_ids = []
@@ -112,14 +114,17 @@ class GeonodeApiKeyAuthentication(ApiKeyAuthentication):
 
 
 class GeoNodeStyleAuthorization(GeoNodeAuthorization):
-    """Object level API authorization based on GeoNode granular
-    permission system
+    """
+    Object level API authorization based on GeoNode granular permission system.
 
-    Style object permissions should follow it's layer permissions
+    Style object permissions should follow it's layer permissions.
     """
 
     def filter_by_resource_ids(self, object_list, permitted_ids):
-        """Filter Style queryset by permitted resource ids."""
+        """
+        Filter Style queryset by permitted resource ids.
+        """
+        
         if check_ogc_backend(geoserver.BACKEND_PACKAGE):
             return object_list.filter(dataset_styles__id__in=permitted_ids)
 
@@ -136,9 +141,10 @@ class GeoNodeStyleAuthorization(GeoNodeAuthorization):
 
 
 class ApiLockdownAuthorization(DjangoAuthorization):
-    """API authorization for all resources which are not protected  by others authentication/authorization mechanism.
-    If setting "API_LOCKDOWN" is set to True, resource can only be accessed by authenticated users. For anonymous
-    requests, empty lists are returned.
+    """
+    API authorization for all resources which are not protected  by others authentication/authorization mechanism.
+    
+    If setting "API_LOCKDOWN" is set to True, resource can only be accessed by authenticated users. For anonymous requests, empty lists are returned.
     """
 
     def read_list(self, object_list, bundle):
@@ -151,7 +157,9 @@ class ApiLockdownAuthorization(DjangoAuthorization):
 
 
 class GeoNodePeopleAuthorization(DjangoAuthorization):
-    """API authorization that allows only authenticated users to view list of users"""
+    """
+    API authorization that allows only authenticated users to view list of users
+    """
 
     def read_list(self, object_list, bundle):
         user = bundle.request.user

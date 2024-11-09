@@ -22,8 +22,7 @@ from rest_framework.filters import BaseFilterBackend
 
 class DocumentPermissionsFilter(BaseFilterBackend):
     """
-    A filter backend that limits results to those where the requesting user
-    has read object level permissions.
+    A filter backend that limits results to those where the requesting user has read object level permissions.
     """
 
     shortcut_kwargs = {

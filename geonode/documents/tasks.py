@@ -88,6 +88,7 @@ def create_document_thumbnail(self, object_id):
     """
     Create thumbnail for a document.
     """
+
     logger.debug(f"Generating thumbnail for document #{object_id}.")
 
     storage_manager = StorageManager()

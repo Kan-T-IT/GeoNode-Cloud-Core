@@ -19,11 +19,10 @@
 
 """
 See the README.rst in this directory for details on running these tests.
-@todo allow using a database other than `development.db` - for some reason, a
-      test db is not created when running using normal settings
-@todo when using database settings, a test database is used and this makes it
-      difficult for cleanup to track the layers created between runs
-@todo only test_time seems to work correctly with database backend test settings
+
+    - @todo allow using a database other than `development.db` - for some reason, a test db is not created when running using normal settings
+    - @todo when using database settings, a test database is used and this makes it difficult for cleanup to track the layers created between runs
+    - @todo only test_time seems to work correctly with database backend test settings
 """
 
 from unittest import mock
@@ -89,7 +88,10 @@ else:
 
 
 def get_wms(version="1.1.1", type_name=None, username=None, password=None):
-    """Function to return an OWSLib WMS object"""
+    """
+    Function to return an OWSLib WMS object
+    """
+
     # right now owslib does not support auth for get caps
     # requests. Either we should roll our own or fix owslib
     if type_name:
@@ -159,8 +161,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
             delete_all_acl_rules()
 
     def check_dataset_geonode_page(self, path):
-        """Check that the final dataset page render's correctly after
-        an dataset is uploaded"""
+        """
+        Check that the final dataset page render's correctly after an dataset is uploaded
+        """
+
         # the final url for uploader process. This does a redirect to
         # the final dataset page in geonode
         resp, _ = self.client.get_html(path)
@@ -168,16 +172,20 @@ class UploaderBase(GeoNodeBaseTestSupport):
         self.assertTrue("content-type" in resp.headers)
 
     def check_dataset_geoserver_caps(self, type_name):
-        """Check that a dataset shows up in GeoServer's get
-        capabilities document"""
+        """
+        Check that a dataset shows up in GeoServer's get capabilities document
+        """
+
         # using owslib
         wms = get_wms(type_name=type_name, username=GEOSERVER_USER, password=GEOSERVER_PASSWD)
         ws, dataset_name = type_name.split(":")
         self.assertTrue(dataset_name in wms.contents, f"{dataset_name} is not in {wms.contents}")
 
     def check_dataset_geoserver_rest(self, dataset_name):
-        """Check that a dataset shows up in GeoServer rest api after
-        the uploader is done"""
+        """
+        Check that a dataset shows up in GeoServer rest api after the uploader is done
+        """
+
         # using gsconfig to test the geoserver rest api.
         dataset = self.catalog.get_layer(dataset_name)
         self.assertIsNotNone(dataset)
@@ -199,7 +207,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
         return self.complete_upload(file_path, resp, data, is_raster=True)
 
     def check_save_step(self, resp, data):
-        """Verify the initial save step"""
+        """
+        Verify the initial save step
+        """
+
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(isinstance(data, dict))
         # make that the upload returns a success True key
@@ -207,15 +218,25 @@ class UploaderBase(GeoNodeBaseTestSupport):
         self.assertTrue("redirect_to" in data)
 
     def complete_upload(self, file_path, resp, data, is_raster=False):
-        """Method to check if a dataset was correctly uploaded to the
-        GeoNode.
+        """
+        Check if a dataset was correctly uploaded to GeoNode.
 
-        arguments: file path, the django http response
+        This method verifies if a dataset is configured properly in both Django and GeoServer.
 
-           Checks to see if a dataset is configured in Django
-           Checks to see if a dataset is configured in GeoServer
-               checks the Rest API
-               checks the get cap document"""
+        Parameters
+        ----------
+        file_path : str
+            Path to the dataset file.
+        response : HttpResponse
+            Django HTTP response object.
+
+        Checks
+        ------
+        - Verifies if the dataset is configured in Django.
+        - Verifies if the dataset is configured in GeoServer:
+            - Checks the REST API.
+            - Checks the GetCapabilities document.
+        """
 
         dataset_name, ext = os.path.splitext(os.path.basename(file_path))
 
@@ -277,7 +298,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
             self.fail(f"expected to find Upload object for {original_name}")
 
     def check_dataset_complete(self, dataset_page, original_name):
-        """check everything to verify the dataset is complete"""
+        """
+        Check everything to verify the dataset is complete
+        """
+
         self.check_dataset_geonode_page(dataset_page)
         # @todo use the original_name
         # currently working around potential 'orphaned' db tables
@@ -303,8 +327,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
         self.check_upload_model(dataset_name)
 
     def check_invalid_projection(self, dataset_name, resp, data):
-        """Makes sure that we got the correct response from an dataset
-        that can't be uploaded"""
+        """
+        Makes sure that we got the correct response from an dataset that can't be uploaded
+        """
+
         self.assertTrue(resp.status_code, 200)
         if not isinstance(data, str):
             self.assertTrue(data["success"])
@@ -318,8 +344,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
                 self.assertTrue(str(h2).find(dataset_name))
 
     def check_upload_complete(self, dataset_name, resp, data):
-        """Makes sure that we got the correct response from an dataset
-        that has been uploaded"""
+        """
+        Makes sure that we got the correct response from an dataset that has been uploaded
+        """
+
         self.assertTrue(resp.status_code, 200)
         if not isinstance(data, str):
             self.assertTrue(data["success"])
@@ -328,8 +356,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
                 self.assertTrue(final_step in data["redirect_to"])
 
     def check_upload_failed(self, dataset_name, resp, data):
-        """Makes sure that we got the correct response from an dataset
-        that can't be uploaded"""
+        """
+        Makes sure that we got the correct response from an dataset that can't be uploaded
+        """
+
         self.assertTrue(resp.status_code, 400)
 
     def upload_folder_of_files(self, folder, final_check, session_ids=None):
@@ -399,7 +429,10 @@ class UploaderBase(GeoNodeBaseTestSupport):
 
 class TestUpload(UploaderBase):
     def test_shp_upload(self):
-        """Tests if a vector dataset can be uploaded to a running GeoNode/GeoServer"""
+        """
+        Tests if a vector dataset can be uploaded to a running GeoNode/GeoServer
+        """
+
         dataset_name = "san_andres_y_providencia_water"
         fname = os.path.join(GOOD_DATA, "vector", f"{dataset_name}.shp")
         self.upload_file(fname, self.complete_upload, check_name=f"{dataset_name}")
@@ -459,7 +492,10 @@ class TestUpload(UploaderBase):
                     _post_migrate_link_meta = None
 
     def test_raster_upload(self):
-        """Tests if a raster dataset can be upload to a running GeoNode GeoServer"""
+        """
+        Tests if a raster dataset can be upload to a running GeoNode GeoServer
+        """
+
         fname = os.path.join(GOOD_DATA, "raster", "relief_san_andres.tif")
         self.upload_file(fname, self.complete_raster_upload, check_name="relief_san_andres")
 
@@ -467,7 +503,10 @@ class TestUpload(UploaderBase):
         self.assertIsNotNone(test_dataset)
 
     def test_zipped_upload(self):
-        """Test uploading a zipped shapefile"""
+        """
+        Test uploading a zipped shapefile
+        """
+
         fd, abspath = self.temp_file(".zip")
         fp = os.fdopen(fd, "wb")
         zf = ZipFile(fp, "w", allowZip64=True)
@@ -492,6 +531,7 @@ class TestUpload(UploaderBase):
         """
         Ensure a new dataset with same UUID metadata cannot be uploaded
         """
+
         PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
         # Uploading the first one should be OK
@@ -503,7 +543,10 @@ class TestUpload(UploaderBase):
         self.upload_file(same_uuid_b, self.check_upload_failed)
 
     def test_ascii_grid_upload(self):
-        """Tests the layers that ASCII grid files are uploaded along with aux"""
+        """
+        Tests the layers that ASCII grid files are uploaded along with aux
+        """
+
         session_ids = []
 
         PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -511,7 +554,10 @@ class TestUpload(UploaderBase):
         self.upload_folder_of_files(thedataset_path, self.complete_raster_upload, session_ids=session_ids)
 
     def test_invalid_dataset_upload(self):
-        """Tests the layers that are invalid and should not be uploaded"""
+        """
+        Tests the layers that are invalid and should not be uploaded
+        """
+
         # this issue with this test is that the importer supports
         # shapefiles without an .prj
         session_ids = []
@@ -520,7 +566,10 @@ class TestUpload(UploaderBase):
         self.upload_folder_of_files(invalid_path, self.check_invalid_projection, session_ids=session_ids)
 
     def test_coherent_importer_session(self):
-        """Tests that the upload computes correctly next session IDs"""
+        """
+        Tests that the upload computes correctly next session IDs
+        """
+
         session_ids = []
 
         # First of all lets upload a raster
@@ -544,8 +593,9 @@ class TestUpload(UploaderBase):
             self.assertTrue(int(session_ids[0]) < int(session_ids[1]))
 
     def test_extension_not_implemented(self):
-        """Verify a error message is return when an unsupported dataset is
-        uploaded"""
+        """
+        Verify a error message is return when an unsupported dataset is uploaded
+        """
 
         # try to upload ourselves
         # a python file is unsupported
@@ -557,7 +607,10 @@ class TestUpload(UploaderBase):
             self.client.upload_file(unsupported_path)
 
     def test_csv(self):
-        """make sure a csv upload fails gracefully/normally when not activated"""
+        """
+        Make sure a csv upload fails gracefully/normally when not activated
+        """
+
         csv_file = self.make_csv(["lat", "lon", "thing"], {"lat": -100, "lon": -40, "thing": "foo"})
         dataset_name, ext = os.path.splitext(os.path.basename(csv_file))
         resp, data = self.client.upload_file(csv_file)
@@ -568,7 +621,10 @@ class TestUpload(UploaderBase):
             self.assertTrue(data["redirect_to"], "/upload/csv")
 
     def test_csv_with_size_limit(self):
-        """make sure a upload fails gracefully/normally with big files"""
+        """
+        Make sure a upload fails gracefully/normally with big files
+        """
+
         upload_size_limit_obj, created = UploadSizeLimit.objects.get_or_create(
             slug="dataset_upload_size",
             defaults={
@@ -599,7 +655,10 @@ class TestUpload(UploaderBase):
         self.assertIn(expected_error, error.exception.msg)
 
     def test_csv_with_upload_handler_size_limit(self):
-        """make sure a upload fails gracefully/normally with big files"""
+        """
+        Make sure a upload fails gracefully/normally with big files
+        """
+
         # Set ``dataset_upload_size`` to 3 and to ``file_upload_handler`` 2
         # In production ``dataset_upload_size`` should not be greater than ``file_upload_handler``
         # It's used here to make sure that the uploadhandler is called
@@ -631,7 +690,9 @@ class TestUpload(UploaderBase):
 @unittest.skipUnless(ogc_server_settings.datastore_db, "Vector datastore not enabled")
 class TestUploadDBDataStore(UploaderBase):
     def test_csv(self):
-        """Override the baseclass test and verify a correct CSV upload"""
+        """
+        Override the baseclass test and verify a correct CSV upload
+        """
 
         csv_file = self.make_csv(["lat", "lon", "thing"], {"lat": -100, "lon": -40, "thing": "foo"})
         dataset_name, ext = os.path.splitext(os.path.basename(csv_file))
@@ -648,7 +709,10 @@ class TestUploadDBDataStore(UploaderBase):
             self.assertEqual(content["status"], "incomplete")
 
     def test_time(self):
-        """Verify that uploading time based shapefile works properly"""
+        """
+        Verify that uploading time based shapefile works properly
+        """
+
         cascading_delete(dataset_name="boxes_with_date", catalog=self.catalog)
 
         timedir = os.path.join(GOOD_DATA, "time")

@@ -60,7 +60,9 @@ class Role:
 
 
 class Roles(enum.Enum):
-    """Roles with their `label`, `is_required`, `is_multivalue`, `is_toggled_in_metadata_editor"""
+    """
+    Roles with their `label`, `is_required`, `is_multivalue`, `is_toggled_in_metadata_editor`
+    """
 
     OWNER = Role("Owner", True, False, False)
     METADATA_AUTHOR = Role("Metadata Author", True, True, True)

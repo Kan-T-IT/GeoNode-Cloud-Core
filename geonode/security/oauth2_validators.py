@@ -34,19 +34,25 @@ log = logging.getLogger(__name__)
 
 
 class OIDCValidator(OAuth2Validator):
-    """e.g.
-        Check username and password correspond to a valid and active User, if fails
-        try Facebook token authentication
-    def validate_user(self, username, password, client, request, *args, **kwargs):
-        u = authenticate(username=username, password=password)
-        if u is None or not u.is_active:
-           u = authenticate_with_facebook()
+    """
+    Example:
+        Check if the username and password correspond to a valid and active User.
+        If authentication fails, try Facebook token authentication.
 
-        if u is not none and u.is_active:
-           request.user = u
-           return True
+    Example method:
 
-        return False
+    .. code-block:: python
+
+        def validate_user(self, username, password, client, request, *args, **kwargs):
+            u = authenticate(username=username, password=password)
+            if u is None or not u.is_active:
+                u = authenticate_with_facebook()
+
+            if u is not None and u.is_active:
+                request.user = u
+                return True
+
+            return False
     """
 
     def get_authorization_code_nonce(self, client_id, code, redirect_uri, request):

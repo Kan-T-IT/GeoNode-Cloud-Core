@@ -1013,7 +1013,6 @@ class DisableDjangoSignals:
 
     usage:
     with DisableDjangoSignals():
-        # do some fancy stuff here
     """
 
     def __init__(self, disabled_signals=None, skip=False):

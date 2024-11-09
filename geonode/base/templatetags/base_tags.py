@@ -60,7 +60,10 @@ def template_trans(text):
 
 @register.filter(name="get_item")
 def get_item(dictionary, key):
-    """Get a element for a dict by name"""
+    """
+    Get a element for a dict by name
+    """
+
     return dictionary.get(key)
 
 
@@ -395,6 +398,10 @@ def get_visibile_resources(user):
 
 @register.simple_tag
 def display_edit_request_button(resource, user, perms):
+    """
+    The download resource permission should be available only if the resource is a datasets or Documents. You cant download maps
+    """
+
     def _has_owner_his_permissions():
         _owner_perms = set(
             resource.BASE_PERMISSIONS.get("owner")
@@ -403,10 +410,7 @@ def display_edit_request_button(resource, user, perms):
         )
 
         if resource.resource_type in ["dataset", "document"]:
-            """
-            The download resource permission should be available only
-            if the resource is a datasets or Documents. You cant download maps
-            """
+
             _owner_perms = _owner_perms.union(set(resource.BASE_PERMISSIONS.get("download")))
 
         _owner_set = _owner_perms.difference(set(perms))

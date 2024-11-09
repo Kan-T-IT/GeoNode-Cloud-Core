@@ -212,17 +212,18 @@ def adjust_now_to_noon(now):
 
 def aggregate_past_periods(metric_data_q=None, periods=None, cleanup=True, now=None, max_since=None):
     """
-    Aggregate past metric data into longer periods
-    @param metric_data_q Query for metric data to use as input
-                         (default: all MetricValues)
-    @param periods list of tuples (cutoff, aggregation) to be used
-                   (default: settings.MONITORING_DATA_AGGREGATION)
-    @param cleanup flag if input data should be removed after aggregation
-                   (default: True)
-    @param now arbitrary now moment to start calculation of cutoff
-               (default: current now)
-    @param max_since look for data no older than max_since
-                     (default: 1 year)
+    Aggregate past metric data into longer periods.
+
+    @param metric_data_q: Query for metric data to use as input
+                            (default: all MetricValues)
+    @param periods: List of tuples (cutoff, aggregation) to be used
+                    (default: settings.MONITORING_DATA_AGGREGATION)
+    @param cleanup: Flag if input data should be removed after aggregation
+                    (default: True)
+    @param now: Arbitrary now moment to start calculation of cutoff
+                (default: current now)
+    @param max_since: Look for data no older than max_since
+                        (default: 1 year)
     """
     utc = pytz.utc
     if now is None:

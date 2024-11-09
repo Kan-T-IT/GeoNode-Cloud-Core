@@ -475,6 +475,7 @@ class Command(BaseCommand):
         :param backup_files_dir: path to the directory containing backup files
         :return: backup file path, if a proper backup archive was found, and None otherwise
         """
+
         # get the latest modified backup file available in backup directory
         backup_file = None
 
@@ -513,12 +514,12 @@ class Command(BaseCommand):
 
     def validate_backup_file_hash(self, backup_file: str) -> str:
         """
-        Method calculating backup file's hash and validating it, if the proper *.md5 file
-        exists in the backup_file directory
+        Method calculating the hash of the backup file and validating it if the proper \*.md5 file exists in the backup_file directory.
 
         :param backup_file: path to the backup_file
         :return: backup_file hash
         """
+
         # calculate backup file's md5 hash
         backup_hash = utils.md5_file_hash(backup_file)
 
@@ -551,6 +552,7 @@ class Command(BaseCommand):
         :param backup_file: path to the backup_file
         :return: backup_ini_file_path original settings used by the backup file
         """
+
         # check if the ini file is in place
         backup_ini_file_path = f"{backup_file.rsplit('.', 1)[0]}.ini"
 
@@ -701,7 +703,10 @@ class Command(BaseCommand):
                     logger.info(f"Skipping raster data directory '{source_root}' because it does not exist")
 
     def restore_geoserver_vector_data(self, config, settings, target_folder, soft_reset):
-        """Restore Vectorial Data from DB"""
+        """
+        Restore Vectorial Data from DB
+        """
+
         if config.gs_dump_vector_data:
             logger.info("*** Restore vector data")
 
@@ -735,7 +740,10 @@ class Command(BaseCommand):
                 )
 
     def restore_geoserver_externals(self, config, settings, target_folder):
-        """Restore external references from XML files"""
+        """
+        Restore external references from XML files
+        """
+
         logger.info("*** Restoring GeoServer external resources...")
         external_folder = os.path.join(target_folder, utils.EXTERNAL_ROOT)
         if os.path.exists(external_folder):

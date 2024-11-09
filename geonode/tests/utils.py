@@ -311,8 +311,8 @@ if has_notifications:
     class NotificationsTestsHelper(GeoNodeBaseTestSupport):
         """
         Helper class for notification tests
+
         This provides:
-         *
         """
 
         def setup_notifications_for(self, notifications_list, user):

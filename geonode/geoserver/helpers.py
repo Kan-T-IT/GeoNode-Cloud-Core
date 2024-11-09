@@ -911,13 +911,40 @@ def get_stores(store_type=None):
 
 
 def set_attributes(layer, attribute_map, overwrite=False, attribute_stats=None):
-    """*layer*: a geonode.layers.models.Dataset instance
-    *attribute_map*: a list of 2-lists specifying attribute names and types,
-        example: [ ['id', 'Integer'], ... ]
-    *overwrite*: replace existing attributes with new values if name/type matches.
-    *attribute_stats*: dictionary of return values from get_attribute_statistics(),
-        of the form to get values by referencing attribute_stats[<dataset_name>][<field_name>].
     """
+    Parameters:
+
+    - *layer*: A `geonode.layers.models.Dataset` instance representing the dataset layer.
+
+    - *attribute_map*: A list of 2-item lists specifying attribute names and types.
+
+        Example:
+
+        .. code-block:: python
+
+            attribute_map = [
+                ['id', 'Integer'],
+                ['name', 'String'],
+                ['created_at', 'Date']
+            ]
+
+    - *overwrite*: Boolean flag to replace existing attributes with new values if their name/type matches.
+
+    - *attribute_stats*: A dictionary containing return values from `get_attribute_statistics()`.
+
+        Structure:
+
+        .. code-block:: python
+
+            attribute_stats = {
+                "<dataset_name>": {
+                    "<field_name>": <stat_value>
+                }
+            }
+
+        Use `attribute_stats[<dataset_name>][<field_name>]` to access specific values.
+    """
+
     # we need 3 more items; description, attribute_label, and display_order
     attribute_map_dict = {
         "field": 0,

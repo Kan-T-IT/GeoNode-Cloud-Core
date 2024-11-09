@@ -74,7 +74,10 @@ thumb_filename_regex = re.compile(
 
 
 def get_thumb_uuid(filename):
-    """Fetches the UUID associated with the given thumbnail file"""
+    """
+    Fetches the UUID associated with the given thumbnail file
+    """
+
     result = thumb_filename_regex.search(filename)
     uuid = result.group(2) if result else None
 
@@ -85,6 +88,7 @@ def delete_orphaned_thumbs():
     """
     Deletes orphaned thumbnails.
     """
+
     deleted = []
     thumb_uuids = {get_thumb_uuid(filename): filename for filename in get_thumbs()}
     db_uuids = ResourceBase.objects.filter(uuid__in=thumb_uuids.keys()).values_list("uuid", flat=True)
@@ -106,6 +110,7 @@ def remove_duplicate_links(resource):
     Makes a scan of Links related to the resource and removes the duplicates.
     It also regenerates the Legend link in case this is missing for some reason.
     """
+
     for _n in _names:
         _links = Link.objects.filter(resource__id=resource.id, name=_n)
         _cnt = _links.count()
@@ -205,9 +210,10 @@ def validate_extra_metadata(data, instance):
 
 def remove_country_from_languagecode(language: str):
     """Remove country code (us) from language name (en-us)
-    >>> remove_country_from_lanugecode("en-us")
-    'en'
+
+    >>> remove_country_from_lanugecode("en-us") 'en'
     """
+
     if "-" not in language:
         return language
 

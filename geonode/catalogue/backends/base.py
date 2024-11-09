@@ -19,20 +19,34 @@
 
 
 class BaseCatalogueBackend(object):
-    """Catalogue abstract base class"""
+    """
+    Catalogue abstract base class
+    """
 
     def remove_record(self, uuid):
-        """Remove record from the catalogue"""
+        """
+        Remove record from the catalogue
+        """
+
         raise NotImplementedError()
 
     def create_record(self, item):
-        """Create record in the catalogue"""
+        """
+        Create record in the catalogue
+        """
+
         raise NotImplementedError()
 
     def get_record(self, uuid):
-        """Get record from the catalogue"""
+        """
+        Get record from the catalogue
+        """
+
         raise NotImplementedError()
 
     def search_records(self, keywords, start, limit, bbox):
-        """Search for records from the catalogue"""
+        """
+        Search for records from the catalogue
+        """
+
         raise NotImplementedError()

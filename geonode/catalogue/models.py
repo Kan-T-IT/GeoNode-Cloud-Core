@@ -33,13 +33,19 @@ LOGGER = logging.getLogger(__name__)
 
 
 def catalogue_pre_delete(instance, sender, **kwargs):
-    """Removes the layer from the catalogue"""
+    """
+    Removes the layer from the catalogue
+    """
+
     catalogue = get_catalogue()
     catalogue.remove_record(instance.uuid)
 
 
 def catalogue_post_save(instance, sender, **kwargs):
-    """Get information from catalogue"""
+    """
+    Get information from catalogue
+    """
+
     _id = instance.resourcebase_ptr.id if hasattr(instance, "resourcebase_ptr") else instance.id
     resources = ResourceBase.objects.filter(id=_id)
 

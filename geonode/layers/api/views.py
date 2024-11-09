@@ -102,25 +102,32 @@ class DatasetViewSet(DynamicModelViewSet):
     )
     def metadata(self, request, pk=None, *args, **kwargs):
         """
-        Endpoint to upload ISO metadata
-        Usage Example:
+        Endpoint to upload ISO metadata.
 
-        import requests
+        **Usage Example (Python):**
 
-        dataset_id = 1
-        url = f"http://localhost:8080/api/v2/datasets/{dataset_id}/metadata"
-        files=[
-            ('metadata_file',('metadata.xml',open('/home/user/metadata.xml','rb'),'text/xml'))
-        ]
-        headers = {
-            'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
-        }
-        response = requests.request("PUT", url, payload={}, files=files)
+        .. code-block:: python
 
-        cURL example:
-        curl --location --request PUT 'http://localhost:8000/api/v2/datasets/{dataset_id}/metadata' \
-        --form 'metadata_file=@/home/user/metadata.xml'
+            import requests
+
+            dataset_id = 1
+            url = f"http://localhost:8080/api/v2/datasets/{dataset_id}/metadata"
+            files = [
+                ('metadata_file', ('metadata.xml', open('/home/user/metadata.xml', 'rb'), 'text/xml'))
+            ]
+            headers = {
+                'Authorization': 'Basic dXNlcjpwYXNzd29yZA=='
+            }
+            response = requests.request("PUT", url, headers=headers, files=files)
+
+        **cURL Example:**
+
+        .. code-block:: bash
+
+            curl --location --request PUT 'http://localhost:8000/api/v2/datasets/{dataset_id}/metadata' \
+            --form 'metadata_file=@/home/user/metadata.xml'
         """
+
         out = {}
         storage_manager = None
         if not self.queryset.filter(id=pk).exists():

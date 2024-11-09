@@ -93,14 +93,13 @@ def parse_tag(token, parser):
 
     tag_name is a string, the name of the tag.
 
-    args is a list of FilterExpressions, from all the arguments that didn't look like kwargs,
-    in the order they occurred, including any that were mingled amongst kwargs.
+    args is a list of FilterExpressions, from all the arguments that didn't look like kwargs, in the order they occurred, including any that were mingled amongst kwargs.
 
-    kwargs is a dictionary mapping kwarg names to FilterExpressions, for all the arguments that
-    looked like kwargs, including any that were mingled amongst args.
+    kwargs is a dictionary mapping kwarg names to FilterExpressions, for all the arguments that looked like kwargs, including any that were mingled amongst args.
 
     (At rendering time, a FilterExpression f can be evaluated by calling f.resolve(context).)
     """
+
     # Split the tag content into words, respecting quoted strings.
     bits = token.split_contents()
 

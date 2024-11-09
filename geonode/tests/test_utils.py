@@ -50,8 +50,7 @@ class TestCopyTree(GeoNodeBaseTestSupport):
         self, patch_isdir, patch_listdir, patch_getmtime, patch_shutil_copy2
     ):
         """
-        Test that all root directories whose modification dates meet the 'data_dt_filter'
-        less-than iso timestamp are backed-up successfully
+        Test that all root directories whose modification dates meet the 'data_dt_filter' less-than iso timestamp are backed-up successfully
         """
         copy_tree("/src", "/dst", ignore=ignore_time("<", datetime.now().isoformat()))
         self.assertTrue(patch_shutil_copy2.called)
@@ -64,8 +63,7 @@ class TestCopyTree(GeoNodeBaseTestSupport):
         self, patch_isdir, patch_listdir, patch_getmtime, patch_shutil_copy2
     ):
         """
-        Test that all root directories whose modification dates do not meet the 'data_dt_filter'
-        less-than iso timestamp are not backed-up
+        Test that all root directories whose modification dates do not meet the 'data_dt_filter' less-than iso timestamp are not backed-up
         """
         copy_tree("/src", "/dst", ignore=ignore_time("<", datetime.now().isoformat()))
         self.assertFalse(patch_shutil_copy2.called)
@@ -78,8 +76,7 @@ class TestCopyTree(GeoNodeBaseTestSupport):
         self, patch_isdir, patch_listdir, patch_getmtime, patch_shutil_copy2
     ):
         """
-        Test that all root directories whose modification dates do not meet the 'data_dt_filter'
-        greater-than iso timestamp are backed-up successfully
+        Test that all root directories whose modification dates do not meet the 'data_dt_filter' greater-than iso timestamp are backed-up successfully
         """
         copy_tree("/src", "/dst", ignore=ignore_time(">", datetime.now().isoformat()))
         self.assertFalse(patch_shutil_copy2.called)
@@ -92,8 +89,7 @@ class TestCopyTree(GeoNodeBaseTestSupport):
         self, patch_isdir, patch_listdir, patch_getmtime, patch_shutil_copy2
     ):
         """
-        Test that all root directories whose modification dates do not meet the 'data_dt_filter'
-        less-than iso timestamp are not backed-up
+        Test that all root directories whose modification dates do not meet the 'data_dt_filter' less-than iso timestamp are not backed-up
         """
         copy_tree("/src", "/dst", ignore=ignore_time(">", datetime.now().isoformat()))
         self.assertTrue(patch_shutil_copy2.called)
@@ -165,8 +161,8 @@ class TestSetAttributes(GeoNodeBaseTestSupport):
         self.user = get_user_model().objects.get(username="admin")
 
     def test_set_attributes_creates_attributes(self):
-        """Test utility function set_attributes() which creates Attribute instances attached
-        to a Dataset instance.
+        """
+        Test utility function set_attributes() which creates Attribute instances attached to a Dataset instance.
         """
         # Creating a dataset requires being logged in
         self.client.login(username="norman", password="norman")

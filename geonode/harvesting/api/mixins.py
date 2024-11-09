@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 
 
 class UpdateListModelMixin:
-    """Adds the `update_list` method to a viewset
+    """
+    Adds the `update_list` method to a viewset
 
-    `update_list` is used by `api.routers.ListPatchRouter` in order to allow
-    performing PATCH requests against a viewset's `list` endpoint
+    `update_list` is used by `api.routers.ListPatchRouter` in order to allow performing PATCH requests against a viewset's `list` endpoint
     """
 
     def update_list(self, request: Request, *args, **kwargs):

@@ -20,6 +20,7 @@
 """
 Tools for managing a Catalogue Service for the Web (CSW)
 """
+
 import os
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -38,7 +39,10 @@ if DEFAULT_CATALOGUE_ALIAS not in settings.CATALOGUE:
 
 
 def load_backend(backend_name):
-    """load a Catalogue backend"""
+    """
+    Load a Catalogue backend
+    """
+
     # Look for a fully qualified CSW backend name
     try:
         return import_module(backend_name)
@@ -71,14 +75,20 @@ def load_backend(backend_name):
 
 
 def default_catalogue_backend():
-    """Get the default backend"""
+    """
+    Get the default backend
+    """
+
     msg = f"There is no '{DEFAULT_CATALOGUE_ALIAS}' backend in CATALOGUE"
     assert DEFAULT_CATALOGUE_ALIAS in settings.CATALOGUE, msg
     return settings.CATALOGUE[DEFAULT_CATALOGUE_ALIAS]
 
 
 def get_catalogue(backend=None, skip_caps=True):
-    """Returns a catalogue object."""
+    """
+    Returns a catalogue object.
+    """
+
     default_backend_config = backend or default_catalogue_backend()
     backend_name = default_backend_config["ENGINE"]
     catalog_module = load_backend(backend_name)

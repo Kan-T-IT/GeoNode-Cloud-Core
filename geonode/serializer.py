@@ -26,8 +26,7 @@ from kombu.utils import json as kombujson
 
 class JSONEncoder(kombujson.JSONEncoder):
     """
-    A JSON serializer implementation that supports serialisation
-    of `Polygon`s
+    A JSON serializer implementation that supports serialisation of `Polygon\`s`
     """
 
     def default(self, obj):

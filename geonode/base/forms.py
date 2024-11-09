@@ -122,6 +122,7 @@ class RegionsMultipleChoiceField(forms.MultipleChoiceField):
         """
         Validates that the input is a list or tuple.
         """
+
         if self.required and not value:
             raise forms.ValidationError(self.error_messages["required"], code="required")
 
@@ -174,7 +175,10 @@ class RegionsSelect(forms.Select):
         )
 
     def render_options(self, selected_choices):
-        # Normalize to strings.
+        """
+        Normalize to strings.
+        """
+
         def _region_id_from_choice(choice):
             if isinstance(choice, int) or (isinstance(choice, str) and choice.isdigit()):
                 return int(choice)
@@ -263,8 +267,9 @@ THESAURUS_RESULT_LIST_SEPERATOR = ("", "-------")
 
 
 class ThesaurusAvailableForm(forms.Form):
-    # seperator at beginning of thesaurus search result and between
-    # results found in local language and alt label
+    """
+    Separator at the beginning of the thesaurus search result and between results found in the local language and alt labels.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -313,9 +318,14 @@ class ThesaurusAvailableForm(forms.Form):
 
     @staticmethod
     def _get_thesauro_keyword_label(item, lang):
+        """
+        Tries to find results for the given language (e.g., en-us).
+
+        If no results are found, it removes the country code from the language (e.g., en) and tries again.
+        """
+
         keyword_id_for_given_thesaurus = ThesaurusKeyword.objects.filter(thesaurus_id=item)
 
-        # try find results found for given language e.g. (en-us) if no results found remove country code from language to (en) and try again
         qs_keyword_ids = ThesaurusKeywordLabel.objects.filter(
             lang=lang, keyword_id__in=keyword_id_for_given_thesaurus
         ).values("keyword_id")
@@ -387,7 +397,10 @@ class LinkedResourceForm(forms.ModelForm):
         fields = ["linked_resources"]
 
     def save_linked_resources(self, links_field="linked_resources"):
-        # create and fetch desired links
+        """
+        Create and fetch desired links
+        """
+
         target_ids = []
         for res in self.cleaned_data[links_field]:
             LinkedResource.objects.get_or_create(source=self.instance, target=res, internal=False)
@@ -412,7 +425,9 @@ class ResourceBaseDateTimePicker(DateTimePicker):
 
 
 class ResourceBaseForm(TranslationModelForm, LinkedResourceForm):
-    """Base form for metadata, should be inherited by childres classes of ResourceBase"""
+    """
+    Base form for metadata, should be inherited by childres classes of ResourceBase
+    """
 
     abstract = forms.CharField(label=_("Abstract"), required=False, widget=TinyMCE())
 

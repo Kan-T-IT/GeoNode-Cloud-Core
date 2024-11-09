@@ -27,8 +27,10 @@ from geonode.utils import check_ogc_backend
 
 
 class Command(BaseCommand):
-    """Creates or updates the oauth2 Application
     """
+    Creates or updates the oauth2 Application
+    """
+
     can_import_settings = True
 
     def add_arguments(self, parser):

@@ -40,7 +40,9 @@ logger = logging.getLogger(__name__)
 class SizeRestrictedFileField(forms.FileField):
     """
     Same as FileField, but checks file max_size based on the value stored on `field_slug`.
+
         * field_slug - a slug indicating the database object from where the max_size will be retrieved.
+
     """
 
     def __init__(self, *args, **kwargs):
@@ -141,6 +143,7 @@ class DocumentCreateForm(TranslationModelForm):
         """
         Ensures the JSON field is JSON.
         """
+
         permissions = self.cleaned_data["permissions"]
 
         if not self.fields["permissions"].required and (permissions is None or permissions == ""):
@@ -155,6 +158,7 @@ class DocumentCreateForm(TranslationModelForm):
         """
         Ensures the doc_file or the doc_url field is populated.
         """
+
         cleaned_data = super().clean()
         doc_file = self.cleaned_data.get("doc_file")
         doc_url = self.cleaned_data.get("doc_url")
@@ -177,6 +181,7 @@ class DocumentCreateForm(TranslationModelForm):
         """
         Ensures the doc_file is valid.
         """
+
         doc_file = self.cleaned_data.get("doc_file")
 
         if doc_file and not os.path.splitext(doc_file.name)[1].lower()[1:] in settings.ALLOWED_DOCUMENT_TYPES:
@@ -201,6 +206,7 @@ class DocumentReplaceForm(forms.ModelForm):
         """
         Ensures the doc_file field is populated.
         """
+
         cleaned_data = super().clean()
         doc_file = self.cleaned_data.get("doc_file")
 
@@ -213,6 +219,7 @@ class DocumentReplaceForm(forms.ModelForm):
         """
         Ensures the doc_file is valid.
         """
+
         doc_file = self.cleaned_data.get("doc_file")
 
         if doc_file and not os.path.splitext(doc_file.name)[1].lower()[1:] in settings.ALLOWED_DOCUMENT_TYPES:

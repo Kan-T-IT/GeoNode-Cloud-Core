@@ -52,22 +52,25 @@ class FacetProvider:
         You may want to override this method in order to have an optimized logic
         :return: The name of the provider as a str
         """
+
         self.get_info()["name"]
 
     def get_info(self, lang="en", **kwargs) -> dict:
         """
         Get the basic info for this provider, as a dict with these keys:
-        - 'name': the name of the provider (the one returned by name())
-        - 'filter': the filtering key to be used in a filter query
-        - 'label': a generic label for the facet; the client should try and localize it whenever possible
-        - 'localized_label': a localized label for the facet (localized according to the `lang` param)
-        - 'type': the facet type (e.g. user, region, thesaurus, ...)
-        - 'hierarchical': boolean value telling if the facet items are hierarchically organized
-        - "order": an optional integer suggesting the relative ordering of the facets
+            - 'name': the name of the provider (the one returned by name())
+            - 'filter': the filtering key to be used in a filter query
+            - 'label': a generic label for the facet; the client should try and localize it whenever possible
+            - 'localized_label': a localized label for the facet (localized according to the `lang` param)
+            - 'type': the facet type (e.g. user, region, thesaurus, ...)
+            - 'hierarchical': boolean value telling if the facet items are hierarchically organized
+            - "order": an optional integer suggesting the relative ordering of the facets
 
         :param lang: lanuage for label localization
         :return: a dict
+
         """
+
         pass
 
     def get_facet_items(
@@ -82,13 +85,15 @@ class FacetProvider:
     ) -> (int, list):
         """
         Return the items of the facets, in a tuple:
-        - int, total number of items matched
-        - list, topic records. A topic record is a dict having these keys:
-          - key: the key of the items that should be used for filtering
-          - label: a generic label for the item; the client should try and localize it whenever possible
-          - localized_label: a localized label for the item
-          - count: the count of such topic in the current facet
-          - other facet specific keys
+
+            - int, total number of items matched
+            - list, topic records. A topic record is a dict having these keys:
+                - key: the key of the items that should be used for filtering
+                - label: a generic label for the item; the client should try and localize it whenever possible
+                - localized_label: a localized label for the item
+                - count: the count of such topic in the current facet
+                - other facet specific keys
+
         :param queryset: the prefiltered queryset (may be filtered for authorization or other filters)
         :param start: int: pagination, the index of the initial returned item
         :param end: int: pagination, the index of the last returned item
@@ -96,30 +101,36 @@ class FacetProvider:
         :param topic_contains: only returns matching topics
         :param keys: only returns topics with given keys, even if their count is 0
         :return: a tuple int:total count of record, list of items
+
         """
+
         pass
 
     def get_topics(self, keys: list, lang="en", **kwargs) -> list:
         """
         Return the topics with the requested ids as a list
-        - list, topic records. A topic record is a dict having these keys:
-          - key: the key of the items that should be used for filtering
-          - label: a generic label for the item; the client should try and localize it whenever possible
-          - localized_label: a localized label for the item
-          - other facet specific keys
+            - list, topic records. A topic record is a dict having these keys:
+                - key: the key of the items that should be used for filtering
+                - label: a generic label for the item; the client should try and localize it whenever possible
+                - localized_label: a localized label for the item
+                - other facet specific keys
+
         :param keys: the list of the keys of the topics, as returned by the get_facet_items() method
         :param lang: the preferred language for the labels
         :return: list of items
         """
+
         pass
 
     @classmethod
     def register(cls, registry, **kwargs) -> None:
         """
         Perform registration of instances of this Provider
+
         :param registry: the registry where instances shall be registered
         :param kwargs: other args that may be needed by Providers
         """
+
         pass
 
 
@@ -129,9 +140,9 @@ class FacetsRegistry:
 
     def _load_facets_configuration(self) -> None:
         """
-        Facet loading is done lazily because some FacetProvider may need to access the DB, which may not have been
-        initialized/created yet
+        Facet loading is done lazily because some FacetProvider may need to access the DB, which may not have been initialized/created yet
         """
+
         from django.utils.module_loading import import_string
 
         self.facet_providers = dict()

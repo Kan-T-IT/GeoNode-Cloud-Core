@@ -207,7 +207,8 @@ class Harvester(models.Model):
         return next_session_time < now
 
     def clean(self):
-        """Perform model validation by inspecting fields that depend on each other.
+        """
+        Perform model validation by inspecting fields that depend on each other.
 
         We validate the harvester type specific configuration by determining if it meets
         the configured jsonschema (if any).
@@ -220,7 +221,10 @@ class Harvester(models.Model):
             raise ValidationError(str(exc))
 
     def update_availability(self, timeout_seconds: typing.Optional[int] = 5):
-        """Use the harvesting worker to check if the remote service is available"""
+        """
+        Use the harvesting worker to check if the remote service is available
+        """
+
         worker = self.get_harvester_worker()
         self.last_checked_availability = timezone.now()
         available = worker.check_availability(timeout_seconds=timeout_seconds)
@@ -341,7 +345,10 @@ class AsynchronousHarvestingSession(models.Model):
         return result
 
     def initiate(self, harvestable_resource_ids: typing.Optional[typing.List[int]] = None):
-        """Initiate the asynchronous process that performs the work related to this session."""
+        """
+        Initiate the asynchronous process that performs the work related to this session.
+        """
+
         # NOTE: below we are calling celery tasks using the method of creating a
         # signature from the main celery app object in order to avoid having
         # to import the `tasks` module, which would create circular
@@ -371,7 +378,9 @@ class AsynchronousHarvestingSession(models.Model):
         task_signature.apply_async(args=(), expiration=30)
 
     def abort(self):
-        """Abort a pending or on-going session."""
+        """
+        Abort a pending or on-going session.
+        """
 
         # NOTE: We do not use celery's task revoke feature when aborting a session. This
         # is an explicit design choice. The main reason being that we keep track of a session's

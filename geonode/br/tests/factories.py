@@ -32,6 +32,7 @@ def random_md5_hash() -> str:
 
     :return: hex representation of md5 hash of a random string
     """
+
     return hashlib.md5(
         "".join(random.choices(string.ascii_uppercase + string.digits, k=15)).encode("utf-8")
     ).hexdigest()

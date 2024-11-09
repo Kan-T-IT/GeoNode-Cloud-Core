@@ -91,8 +91,7 @@ def new_geoapp(request, template="apps/app_new.html"):
 @xframe_options_sameorigin
 def geoapp_edit(request, geoappid, template="apps/app_edit.html"):
     """
-    The view that returns the app composer opened to
-    the app with the given app ID.
+    The view that returns the app composer opened to the app with the given app ID.
     """
     try:
         geoapp_obj = _resolve_geoapp(request, geoappid, "base.view_resourcebase", _PERMISSION_MSG_VIEW)

@@ -99,20 +99,19 @@ class FavoriteTest(GeoNodeBaseTestSupport):
         self.assertEqual(len(bulk_favorites["user"]), 0)
 
     def test_given_resource_base_object_will_assign_subtype_as_content_type(self):
+        """
+        If the input object is a ResourceBase, in favorite content type, should be saved he subtype content type (Doc, Dataset, Map or GeoApp)
+
+        If the input object is a subtype, should save the relative content type
+        """
+
         test_user = get_user_model().objects.first()
 
-        """
-        If the input object is a ResourceBase, in favorite content type, should be saved he
-        subtype content type (Doc, Dataset, Map or GeoApp)
-        """
         create_single_dataset("foo_dataset")
         resource = ResourceBase.objects.get(title="foo_dataset")
         created_fav = Favorite.objects.create_favorite(resource, test_user)
         self.assertEqual("dataset", created_fav.content_type.model)
 
-        """
-        If the input object is a subtype, should save the relative content type
-        """
         test_document_1 = Document.objects.first()
         self.assertIsNotNone(test_document_1)
         Favorite.objects.create_favorite(test_document_1, test_user)

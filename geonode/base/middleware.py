@@ -26,8 +26,7 @@ from geonode.base.utils import configuration_session_cache
 
 class ReadOnlyMiddleware:
     """
-    A Middleware disabling all content modifying requests, if read-only Configuration setting is True,
-    with an exception for whitelisted url names.
+    A Middleware disabling all content modifying requests, if read-only Configuration setting is True, with an exception for whitelisted url names.
     """
 
     FORBIDDEN_HTTP_METHODS = ["POST", "PUT", "DELETE"]
@@ -65,9 +64,11 @@ class ReadOnlyMiddleware:
 class MaintenanceMiddleware:
     """
     A Middleware redirecting all requests to maintenance info page, except:
+
         - admin panel login,
         - admin panel logout,
         - requests performed by superuser,
+
     if maintenance Configuration setting is True.
     """
 
